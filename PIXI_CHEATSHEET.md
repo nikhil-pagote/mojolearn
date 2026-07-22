@@ -17,6 +17,89 @@ Run everything **inside the devcontainer** — `mojo`/`pixi` are not on the host
 
 ---
 
+## Installing pixi itself
+
+Pixi isn't a system package — it's installed per-machine (or per-container) via
+its own installer script. This is exactly what `.devcontainer/Containerfile`
+does when the devcontainer is built:
+
+```bash
+curl -fsSL https://pixi.sh/install.sh | sh
+```
+
+This drops the `pixi` binary at `~/.pixi/bin/pixi` (confirmed:
+`/root/.pixi/bin/pixi`, 0.73.0, ~76 MB — pixi is a single self-contained
+executable, no runtime dependencies of its own). It's **not** on `PATH` by
+default, so the Containerfile also adds:
+
+```dockerfile
+ENV PATH="/root/.pixi/bin:${PATH}"
+```
+
+Outside a devcontainer (e.g. setting up a plain machine), the installer adds
+that same directory to `PATH` itself via your shell profile — you'd normally
+just open a new shell afterward instead of exporting it manually.
+
+Once installed, `pixi` is global and machine-wide — you don't reinstall it per
+project. Everything below (`pixi init`, `pixi add`, `pixi run`, …) reuses this
+one binary across as many Mojo (or non-Mojo) projects as you create.
+
+---
+
+## Starting a new Mojo project from scratch
+
+This is how *this* repo's `pixi.toml`/`pixi.lock` were actually generated —
+reproduced and verified step by step in a scratch directory before writing it
+down here.
+
+```bash
+# 1. Scaffold the manifest, declaring BOTH channels up front.
+#    Modular's channel is where the `mojo` package itself lives; conda-forge
+#    supplies everything else it depends on. Order matters (first = priority).
+pixi init -c https://conda.modular.com/max -c conda-forge my-mojo-project
+cd my-mojo-project
+
+# 2. Add the mojo package. This solves the dependency graph and writes
+#    both pixi.toml (the constraint) and pixi.lock (the exact pinned versions).
+pixi add mojo
+
+# 3. Sync the environment (downloads everything pixi.lock pinned).
+pixi install
+
+# 4. Verify it actually works.
+mkdir exercises
+printf 'def main():\n    print("Hello, World!")\n' > exercises/01_hello.mojo
+pixi run mojo run exercises/01_hello.mojo    # -> Hello, World!
+```
+
+**Why the channel flags are required at step 1, not optional:** `pixi add mojo`
+does **not** auto-discover which channel provides `mojo` — if you run
+`pixi init` with no `-c` flags (which defaults to `conda-forge` only) and then
+`pixi add mojo`, it fails outright:
+```
+Error: Cannot solve the request because of: No candidates were found for mojo.
+```
+Modular's channel has to already be declared before `pixi add mojo` can find
+the package. If you forgot it at init time, add it after the fact instead of
+re-running init:
+```bash
+pixi workspace channel add https://conda.modular.com/max
+```
+
+**`pixi init` also has a `--format mojoproject` option** (creates
+`mojoproject.toml` instead of `pixi.toml`) — tested, and its manifest content
+is structurally identical to a plain `pixi.toml` (same `[workspace]`/`[tasks]`/
+`[dependencies]` tables), it's just named differently, and it still needs the
+`-c` channel flags — it does **not** default to including Modular's channel.
+This repo intentionally uses the plain `pixi.toml` format.
+
+`pixi init` (either format) also generates a starter `.gitignore` (ignoring
+`.pixi/*` except `config.toml`) and `.gitattributes` (treating `pixi.lock` as a
+binary/generated file for diffs) — this repo's copies of both files came from
+that scaffolding, not hand-written.
+
+---
+
 ## Environment lifecycle
 
 | Command | What it does |
