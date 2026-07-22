@@ -296,6 +296,49 @@ actual value rather than a coerced `Bool` (`0 or 5` → `5`), the right side of
 uniformly across `String` (substring), `List`/`Set` (element), and `Dict`
 (checks **keys**, like Python — not values). `is` is the one outlier.
 
+## `^` (transfer): moves a value and statically forbids further use of the source
+
+`a^` transfers ownership of `a`'s value instead of copying it — used e.g.
+when passing a non-`Copyable`-conforming value into a constructor
+(`Car(e^, "Tesla")`, seen in `exercises/12_no_inheritance.mojo`).
+
+**It is a compile-time move, not a runtime deletion.** For a non-trivial type
+(anything owning a resource — `String`, a custom struct, etc.), using the
+source variable again afterward is a **compiler error**, not a crash or a
+silently-empty value:
+
+```mojo
+def main():
+    var a: String = "hello"
+    var b = a^
+    print(b)   # hello
+    print(a)   # error: use of uninitialized value 'a'
+```
+
+The compiler statically tracks that `a` no longer owns a value at that point
+in the code and refuses to compile any later use — there's no runtime event
+where `a` "deletes itself"; the check happens entirely at compile time,
+before the program ever runs.
+
+**Exception: trivial register types are unaffected.** `Int` (and similar
+small, no-destructor types) have nothing to "own" — transferring one is
+meaningless, so the compiler makes `^` a silent no-op and *does* let you keep
+using the source variable:
+
+```mojo
+def main():
+    var a = 10
+    var b = a^
+    print(b)   # 10
+    print(a)   # 10 — still usable! (warns: "transfer from a value of
+               #      trivial register type 'Int' has no effect and can
+               #      be removed")
+```
+
+So the rule of thumb: for types that manage a resource, `^` is enforced,
+compile-time, single-ownership move semantics (closer to Rust's `move` than
+to a runtime `delete`). For plain value types like `Int`, it's inert.
+
 ## Making a struct printable: `Writable` + `write_to`, not `__str__`/`Stringable`
 
 Python instinct says implement `__str__` and maybe inherit from something
