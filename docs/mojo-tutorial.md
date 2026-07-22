@@ -270,6 +270,38 @@ def main():
     print(a & b)                  # {2, 3}
 ```
 
+### The rest of `std.collections`: Deque, Counter, InlineArray, LinkedList, BitSet
+
+```mojo
+from std.collections import Deque, Counter, InlineArray, LinkedList, BitSet
+
+def main() raises:                # Deque's pop()/popleft() can raise
+    var dq = Deque[Int]()
+    dq.append(1)
+    dq.appendleft(0)
+    print(dq)                     # [0, 1]
+    print(dq.popleft())           # 0
+
+    var counts = Counter[String]()
+    counts["a"] += 1
+    counts["a"] += 1
+    print(counts["a"])            # 2 — missing keys default to 0
+
+    # InlineArray: fixed-size, stack-allocated. Needs `fill=` — a variadic
+    # constructor like List's does NOT work.
+    var arr = InlineArray[Int, 3](fill=0)
+    arr[0] = 1
+    print(arr[0], len(arr))       # 1 3
+
+    var ll = LinkedList[Int]()
+    ll.append(1)
+    print(ll, len(ll))            # [1] 1
+
+    var bs = BitSet[64]()         # fixed-capacity set of bit flags
+    bs.set(3)
+    print(bs.test(3), bs.test(4)) # True False
+```
+
 ### Comprehensions
 
 List, dict, and set comprehensions all work, with an optional `if` filter —
@@ -548,7 +580,7 @@ any of them with `pixi run mojo run exercises/<file>`:
 | `03_variables.mojo` | §1–2 variables & all supported scalar types |
 | `04_functions.mojo` | §3 functions, defaults, `raises` |
 | `05_control_flow.mojo` | §4 if/elif/else, ternary, loops |
-| `06_collections.mojo` | §5 List, Dict, Optional, tuples, Set, Variant |
+| `06_collections.mojo` | §5 List, Dict, Optional, tuples, Set, Deque, Counter, InlineArray, LinkedList, BitSet, Variant |
 | `07_structs.mojo` | §6 structs, methods, `mut self` |
 | `08_traits_generics.mojo` | §7 traits & generics |
 | `09_error_handling.mojo` | §8 raise / try / except / else / finally / re-raise |
