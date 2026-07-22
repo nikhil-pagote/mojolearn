@@ -129,6 +129,39 @@ def main() raises:
     print(builtins.type(x))    # <class 'int'>
 ```
 
+## No `lambda` — use a nested `def`, and `@parameter` to capture
+
+There is no `lambda` keyword. The compiler's own error is explicit:
+
+```
+error: lambda expressions are not supported; define a nested function with 'def'
+```
+
+A plain nested `def` works as a local helper, but **cannot** see variables
+from the enclosing function — that fails with `Could not infer capture
+convention of the captured value <name>`. To actually capture an outer
+variable, decorate the nested `def` with `@parameter`:
+
+```mojo
+def main():
+    def add_one(x: Int) -> Int:      # plain nested def — no outer access
+        return x + 1
+    print(add_one(5))                # 6
+
+    var n = 10
+    @parameter
+    def add_n(x: Int) -> Int:        # @parameter — CAN capture `n`
+        return x + n
+    print(add_n(5))                  # 15
+```
+
+**Current limitation:** a `@parameter`-capturing closure can't be assigned to
+a variable or passed around as a runtime value yet —
+`var f = add_n` fails with `TODO: capturing closures cannot be materialized
+as runtime values`. It's usable immediately (e.g. as a compile-time argument
+to another `@parameter`-generic function), just not yet a first-class value
+the way a Python closure is.
+
 ## Testing
 
 The `testing` module exists here as `from std.testing import assert_equal`.
