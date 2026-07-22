@@ -1,0 +1,10 @@
+.pixi/
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+
+# Zed Mojo extension (cloned dev extension, has its own git; update via git pull)
+/tools/
+
+# Local, machine-specific Claude Code settings
+.claude/settings.local.json

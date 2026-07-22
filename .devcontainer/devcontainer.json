@@ -1,0 +1,8 @@
+{
+  "name": "Mojo Dev",
+  "build": {
+    "dockerfile": "Containerfile"
+  },
+  "workspaceFolder": "/workspaces/mojo",
+  "postCreateCommand": "pixi install"
+}
