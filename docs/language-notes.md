@@ -162,6 +162,33 @@ as runtime values`. It's usable immediately (e.g. as a compile-time argument
 to another `@parameter`-generic function), just not yet a first-class value
 the way a Python closure is.
 
+## String slicing needs `byte=`/`codepoint=` — and codepoint-slicing multi-byte text is buggy here
+
+`s[a:b]` does **not** work directly on a `String`:
+
+```
+error: String does not support direct positional slicing like `s[a:b]`
+because Mojo strings are UTF-8 encoded, and the same range can mean
+different things. Use `s[byte=a:b]` to slice by raw UTF-8 byte positions,
+or `s[codepoint=a:b]` to slice by Unicode code points.
+```
+
+Both explicit forms work:
+
+```mojo
+var s: String = "hello world"
+print(s[byte=0:5])        # hello
+print(s[codepoint=6:11])  # world
+```
+
+**Verified bug in this build:** `codepoint=` slicing a string that contains
+any multi-byte character corrupts the result. `"café"` is 4 codepoints / 5
+bytes (é is 2 bytes); `"café"[codepoint=0:4]` (the *entire* string) returns a
+value with `byte_length() == 4` instead of `5` — a byte of the é got dropped,
+and it prints as a mangled replacement character. Pure-ASCII text is
+unaffected (1 byte == 1 codepoint there, so the bug can't manifest). Prefer
+`byte=` slicing when correctness with non-ASCII content matters.
+
 ## Testing
 
 The `testing` module exists here as `from std.testing import assert_equal`.

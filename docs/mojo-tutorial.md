@@ -552,6 +552,8 @@ any of them with `pixi run mojo run exercises/<file>`:
 | `08_traits_generics.mojo` | §7 traits & generics |
 | `09_error_handling.mojo` | §8 raise / try / except / else / finally / re-raise |
 | `10_simd.mojo` | §9 SIMD |
+| `11_string_operations.mojo` | String methods: case, strip, split/join, replace, find, slicing (`byte=`/`codepoint=`), length |
+| `12_file_operations.mojo` | File I/O: open/read/write/close, `with`, append mode, existence checks, error handling |
 
 ## Next steps
 
