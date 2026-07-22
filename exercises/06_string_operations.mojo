@@ -1,5 +1,5 @@
 # Tutorial-adjacent: common String operations, all verified against this build.
-# Run: pixi run mojo run exercises/11_string_operations.mojo
+# Run: pixi run mojo run exercises/06_string_operations.mojo
 
 
 def main():

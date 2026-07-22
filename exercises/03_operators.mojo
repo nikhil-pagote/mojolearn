@@ -2,7 +2,7 @@
 # which Python treats as the same category) -> boolean logic (incl.
 # short-circuit) -> bitwise -> augmented assignment -> operator overloading
 # on a custom struct.
-# Run: pixi run mojo run exercises/17_operators.mojo
+# Run: pixi run mojo run exercises/03_operators.mojo
 
 from std.collections import Dict, Optional
 

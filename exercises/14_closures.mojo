@@ -2,7 +2,7 @@
 # capturing an outer variable needs either `capturing` or `@parameter`.
 # See docs/language-notes.md for the full writeup (incl. what Context7's docs
 # got right, and where they mixed in outdated syntax).
-# Run: pixi run mojo run exercises/13_closures.mojo
+# Run: pixi run mojo run exercises/14_closures.mojo
 
 
 # A capturing closure can be passed into another function at COMPILE TIME via

@@ -1,6 +1,6 @@
 # Tutorial §6: structs — @fieldwise_init (replaces the old @value),
 # read-only methods (self), and mutating methods (mut self).
-# Run: pixi run mojo run exercises/07_structs.mojo
+# Run: pixi run mojo run exercises/10_structs.mojo
 
 @fieldwise_init
 struct Point:

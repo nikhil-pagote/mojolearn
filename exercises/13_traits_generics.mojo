@@ -1,6 +1,6 @@
 # Tutorial §7: traits (a method contract) and generics
 # (compile-time type parameters in square brackets).
-# Run: pixi run mojo run exercises/08_traits_generics.mojo
+# Run: pixi run mojo run exercises/13_traits_generics.mojo
 
 trait Greet:
     def hello(self) -> String: ...

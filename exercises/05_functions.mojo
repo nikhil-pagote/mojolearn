@@ -1,6 +1,6 @@
 # Tutorial §3: functions (def only — there is no `fn` in this build),
 # default args, keyword args, and `raises`.
-# Run: pixi run mojo run exercises/04_functions.mojo
+# Run: pixi run mojo run exercises/05_functions.mojo
 
 def add(a: Int, b: Int) -> Int:
     return a + b

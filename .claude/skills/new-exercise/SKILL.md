@@ -10,8 +10,12 @@ Create the next runnable exercise in `exercises/`, correct for this build
 
 ## Steps
 
-1. **Pick the number.** List `exercises/` and use the next zero-padded number
-   after the highest existing `NN_*.mojo` (e.g. after `10_simd.mojo` → `11_`).
+1. **Pick the number.** Exercise numbers follow a pedagogical learning-curve
+   order (fundamentals → data/collections → error handling → structs/OOP
+   substitutes → advanced/specialized), NOT just "append to the end" — check
+   `docs/mojo-tutorial.md`'s exercises table to see where the new topic
+   actually belongs, and be prepared to renumber existing files (via `git mv`
+   through temporary names to avoid collisions) if inserting in the middle.
    Derive a short snake_case name from the topic: `NN_<topic>.mojo`.
 
 2. **Write the file** using ONLY this build's verified syntax (see

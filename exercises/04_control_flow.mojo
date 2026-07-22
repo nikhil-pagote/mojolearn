@@ -1,5 +1,5 @@
 # Tutorial §4: control flow — if/elif/else, ternary, while, for/range.
-# Run: pixi run mojo run exercises/05_control_flow.mojo
+# Run: pixi run mojo run exercises/04_control_flow.mojo
 
 def grade(n: Int) -> String:
     if n >= 90:

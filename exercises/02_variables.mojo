@@ -1,5 +1,5 @@
 # Tutorial §1-2: variables and all supported scalar data types.
-# Run: pixi run mojo run exercises/03_variables.mojo
+# Run: pixi run mojo run exercises/02_variables.mojo
 
 
 def main():

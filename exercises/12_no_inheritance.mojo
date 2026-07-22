@@ -10,10 +10,10 @@
 # So structs can't inherit fields or method implementations from other
 # structs — full stop. Mojo's real answers to "reuse behavior across types"
 # are the two techniques below: COMPOSITION (embed a struct as a field) for
-# code reuse, and TRAITS (see exercises/08_traits_generics.mojo) for
+# code reuse, and TRAITS (see exercises/13_traits_generics.mojo) for
 # polymorphism. Neither gives you classical subclassing, and that's by
 # design, not a missing feature waiting to be discovered.
-# Run: pixi run mojo run exercises/15_no_inheritance.mojo
+# Run: pixi run mojo run exercises/12_no_inheritance.mojo
 
 
 # --- Composition: "has-a" instead of "is-a" ---

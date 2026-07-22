@@ -1,6 +1,6 @@
 # Tutorial §9: SIMD — a taste of why Mojo is fast. One SIMD value holds several
 # numbers and math applies to all lanes at once.
-# Run: pixi run mojo run exercises/10_simd.mojo
+# Run: pixi run mojo run exercises/16_simd.mojo
 
 def main():
     var v = SIMD[DType.int32, 4](1, 2, 3, 4)

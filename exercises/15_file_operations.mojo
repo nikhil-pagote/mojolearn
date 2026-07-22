@@ -1,6 +1,6 @@
 # Tutorial-adjacent: file I/O — open/read/write/close, `with`, and paths.
 # Writes/reads/deletes its own scratch file so it leaves nothing behind.
-# Run: pixi run mojo run exercises/12_file_operations.mojo
+# Run: pixi run mojo run exercises/15_file_operations.mojo
 
 from std.os import remove
 from std.os.path import exists

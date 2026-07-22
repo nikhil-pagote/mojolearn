@@ -7,7 +7,7 @@
 #
 # Run it (CPython must be discoverable at runtime — see below):
 #   LIBPY=$(find .pixi/envs/default/lib -maxdepth 1 -name 'libpython3*.so' | head -1)
-#   MOJO_PYTHON_LIBRARY="$LIBPY" pixi run mojo run exercises/02_python_interop.mojo
+#   MOJO_PYTHON_LIBRARY="$LIBPY" pixi run mojo run exercises/17_python_interop.mojo
 #
 # Why the env var? Mojo does NOT link libpython at build time. It dlopen()s a
 # CPython runtime *on demand*, only because this program uses Python interop.

@@ -1,9 +1,9 @@
 # Tutorial §5: every collection type in std.collections — List, list
 # literals, Dict, Optional, tuples, Set, Deque, Counter, InlineArray,
 # LinkedList, BitSet — plus Variant (Mojo's Union equivalent).
-# Comprehensions have their own file: exercises/14_comprehensions.mojo.
+# Comprehensions have their own file: exercises/08_comprehensions.mojo.
 # Dict/Deque access can raise, so main is `raises`.
-# Run: pixi run mojo run exercises/06_collections.mojo
+# Run: pixi run mojo run exercises/07_collections.mojo
 
 from std.collections import (
     List,

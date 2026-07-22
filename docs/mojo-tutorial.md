@@ -83,7 +83,7 @@ the full set of fixed-width numeric types (verified against the compiler):
 Bare literals default to a specific type: `var x = 42` infers `Int`; `var f =
 3.5` infers `Float64`. Use an explicit annotation (`var x8: Int8 = 42`) for
 anything else. All of these are exercised together in
-`exercises/03_variables.mojo`.
+`exercises/02_variables.mojo`.
 
 `len(s)` also works on a `String`, but this build **warns**: `Using
 String.__len__() is discouraged, prefer .byte_length() or .count_codepoints()`
@@ -306,7 +306,7 @@ def main() raises:                # Deque's pop()/popleft() can raise
 
 List, dict, and set comprehensions all work, with an optional `if` filter —
 but see the note below: there are **no generators**. Runnable exercise:
-`exercises/14_comprehensions.mojo`.
+`exercises/08_comprehensions.mojo`.
 
 ```mojo
 def main():
@@ -477,8 +477,8 @@ def main():
     # -> Tesla (300 hp)
 ```
 
-Runnable exercises: `exercises/15_no_inheritance.mojo` (composition + traits
-as the inheritance substitute) and `exercises/16_struct_constructors.mojo`
+Runnable exercises: `exercises/12_no_inheritance.mojo` (composition + traits
+as the inheritance substitute) and `exercises/11_struct_constructors.mojo`
 (overloading, defaults, static factories, `@fieldwise_init`).
 
 ---
@@ -621,7 +621,7 @@ Run it with CPython made discoverable:
 
 ```bash
 LIBPY=$(find .pixi/envs/default/lib -maxdepth 1 -name 'libpython3*.so' | head -1)
-MOJO_PYTHON_LIBRARY="$LIBPY" pixi run mojo run exercises/02_python_interop.mojo
+MOJO_PYTHON_LIBRARY="$LIBPY" pixi run mojo run exercises/17_python_interop.mojo
 ```
 
 ---
@@ -652,25 +652,28 @@ the standing rule in this repo (`CLAUDE.md`).
 Each tutorial section has a matching, verified script under `exercises/` — run
 any of them with `pixi run mojo run exercises/<file>`:
 
+Numbered in learning-curve order: fundamentals → working with data →
+robustness → custom types/OOP substitutes → advanced/specialized.
+
 | File | Covers |
 |---|---|
 | `01_hello.mojo` | §0 hello world |
-| `02_python_interop.mojo` | §10 calling Python |
-| `03_variables.mojo` | §1–2 variables & all supported scalar types |
-| `04_functions.mojo` | §3 functions, defaults, `raises` |
-| `05_control_flow.mojo` | §4 if/elif/else, ternary, loops |
-| `06_collections.mojo` | §5 List, Dict, Optional, tuples, Set, Deque, Counter, InlineArray, LinkedList, BitSet, Variant |
-| `07_structs.mojo` | §6 structs, methods, `mut self` |
-| `08_traits_generics.mojo` | §7 traits & generics |
+| `02_variables.mojo` | §1–2 variables & all supported scalar types |
+| `03_operators.mojo` | Arithmetic/comparison/logical/bitwise operators, short-circuit, `in`/`is`, `Int/Int` truncation gotcha, operator overloading (`__add__`, `__eq__`, `Writable`) |
+| `04_control_flow.mojo` | §4 if/elif/else, ternary, loops |
+| `05_functions.mojo` | §3 functions, defaults, `raises` |
+| `06_string_operations.mojo` | String methods: case, strip, split/join, replace, find, slicing (`byte=`/`codepoint=`), length, `t"..."` interpolation |
+| `07_collections.mojo` | §5 List, Dict, Optional, tuples, Set, Deque, Counter, InlineArray, LinkedList, BitSet, Variant |
+| `08_comprehensions.mojo` | §5 list/dict/set comprehensions, `if` filters, no generators |
 | `09_error_handling.mojo` | §8 raise / try / except / else / finally / re-raise |
-| `10_simd.mojo` | §9 SIMD |
-| `11_string_operations.mojo` | String methods: case, strip, split/join, replace, find, slicing (`byte=`/`codepoint=`), length, `t"..."` interpolation |
-| `12_file_operations.mojo` | File I/O: open/read/write/close, `with`, append mode, existence checks, error handling |
-| `13_closures.mojo` | No `lambda`; capturing via `capturing` keyword or `@parameter`; closures as compile-time args |
-| `14_comprehensions.mojo` | §5 list/dict/set comprehensions, `if` filters, no generators |
-| `15_no_inheritance.mojo` | §6 no classes, no struct inheritance — composition + traits instead |
-| `16_struct_constructors.mojo` | §6 `__init__` overloading, defaults, `@staticmethod` factories, `@fieldwise_init` |
-| `17_operators.mojo` | Arithmetic/comparison/logical/bitwise operators, short-circuit, `in`/`is`, `Int/Int` truncation gotcha, operator overloading (`__add__`, `__eq__`, `Writable`) |
+| `10_structs.mojo` | §6 structs, methods, `mut self` |
+| `11_struct_constructors.mojo` | §6 `__init__` overloading, defaults, `@staticmethod` factories, `@fieldwise_init` |
+| `12_no_inheritance.mojo` | §6 no classes, no struct inheritance — composition + traits instead |
+| `13_traits_generics.mojo` | §7 traits & generics |
+| `14_closures.mojo` | No `lambda`; capturing via `capturing` keyword or `@parameter`; closures as compile-time args |
+| `15_file_operations.mojo` | File I/O: open/read/write/close, `with`, append mode, existence checks, error handling |
+| `16_simd.mojo` | §9 SIMD |
+| `17_python_interop.mojo` | §10 calling Python |
 
 ## Next steps
 

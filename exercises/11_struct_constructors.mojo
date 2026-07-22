@@ -1,10 +1,10 @@
 # Mojo has no `class` keyword ("classes are not supported yet" — verified in
-# exercises/15_no_inheritance.mojo). Structs are Mojo's only user-defined
+# exercises/12_no_inheritance.mojo). Structs are Mojo's only user-defined
 # type, and they DO have a rich constructor story — just via `__init__` on a
 # `struct`, not a `class`. This covers: multiple constructor overloads,
 # default argument values, @staticmethod factory functions (the "classmethod"
 # equivalent), and @fieldwise_init for the common case.
-# Run: pixi run mojo run exercises/16_struct_constructors.mojo
+# Run: pixi run mojo run exercises/11_struct_constructors.mojo
 
 
 struct Point:

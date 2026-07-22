@@ -5,7 +5,7 @@ But the dependency is **runtime-only and pay-per-use**, proven below.
 
 ## Minimal example
 
-`exercises/02_python_interop.mojo`:
+`exercises/17_python_interop.mojo`:
 
 ```mojo
 from std.python import Python
@@ -18,7 +18,7 @@ def main() raises:
 Run it:
 
 ```bash
-pixi run mojo run exercises/02_python_interop.mojo
+pixi run mojo run exercises/17_python_interop.mojo
 # -> Python math.sqrt(2.0) = 1.4142135623730951
 ```
 
@@ -44,7 +44,7 @@ find `libpython`.
 
 ## The proof: the two binaries compared
 
-| | `01_hello` (no Python) | `02_python_interop` (uses Python) |
+| | `01_hello` (no Python) | `17_python_interop` (uses Python) |
 |---|---|---|
 | Binary size | 18 KB | 117 KB |
 | `ldd` lists `libpython`? | No | **No** (neither links it) |
@@ -71,7 +71,7 @@ CPython at run time. **Only interop binaries need this** — pure-Mojo binaries
 (like `01_hello`) run anywhere with no pixi and no Python.
 
 ```bash
-pixi run mojo build exercises/02_python_interop.mojo -o pyintop
+pixi run mojo build exercises/17_python_interop.mojo -o pyintop
 ```
 
 Three ways to run `./pyintop`:
