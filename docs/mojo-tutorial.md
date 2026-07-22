@@ -68,6 +68,23 @@ def main():
     print(s.byte_length())     # 4
 ```
 
+### All supported scalar types
+
+Beyond the everyday `Int`/`Float64`/`Bool`/`String` above, this build supports
+the full set of fixed-width numeric types (verified against the compiler):
+
+| Kind | Types |
+|---|---|
+| Signed integers | `Int` (machine word), `Int8`, `Int16`, `Int32`, `Int64`, `Int128`, `Int256` |
+| Unsigned integers | `UInt` (machine word), `UInt8`, `UInt16`, `UInt32`, `UInt64`, `UInt128`, `UInt256` |
+| Floating point | `Float16`, `Float32`, `Float64`, `BFloat16`, `Float8_e4m3fn` |
+| Other | `Bool`, `String`, `Byte` (alias for `UInt8`) |
+
+Bare literals default to a specific type: `var x = 42` infers `Int`; `var f =
+3.5` infers `Float64`. Use an explicit annotation (`var x8: Int8 = 42`) for
+anything else. All of these are exercised together in
+`exercises/03_variables.mojo`.
+
 `len(s)` also works on a `String`, but this build **warns**: `Using
 String.__len__() is discouraged, prefer .byte_length() or .count_codepoints()`
 — because "length" is ambiguous for text. They agree for plain ASCII, but
@@ -419,7 +436,7 @@ any of them with `pixi run mojo run exercises/<file>`:
 |---|---|
 | `01_hello.mojo` | §0 hello world |
 | `02_python_interop.mojo` | §10 calling Python |
-| `03_variables.mojo` | §1–2 variables & basic types |
+| `03_variables.mojo` | §1–2 variables & all supported scalar types |
 | `04_functions.mojo` | §3 functions, defaults, `raises` |
 | `05_control_flow.mojo` | §4 if/elif/else, ternary, loops |
 | `06_collections.mojo` | §5 List, Dict, Optional, tuples |
