@@ -554,6 +554,7 @@ any of them with `pixi run mojo run exercises/<file>`:
 | `10_simd.mojo` | §9 SIMD |
 | `11_string_operations.mojo` | String methods: case, strip, split/join, replace, find, slicing (`byte=`/`codepoint=`), length |
 | `12_file_operations.mojo` | File I/O: open/read/write/close, `with`, append mode, existence checks, error handling |
+| `13_closures.mojo` | No `lambda`; capturing via `capturing` keyword or `@parameter`; closures as compile-time args |
 
 ## Next steps
 
