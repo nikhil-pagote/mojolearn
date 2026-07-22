@@ -4,5 +4,8 @@
     "dockerfile": "Containerfile"
   },
   "workspaceFolder": "/workspaces/mojo",
+  "mounts": [
+    "source=${localEnv:HOME}/.config/gh,target=/root/.config/gh,type=bind,consistency=cached"
+  ],
   "postCreateCommand": "pixi install"
 }
