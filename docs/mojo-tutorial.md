@@ -65,8 +65,16 @@ def main():
     print(f * 2)               # 7.0
     print(b, not b)            # True False
     print("hi " + s)           # string concat: hi Mojo
-    print(len(s))              # 4
+    print(s.byte_length())     # 4
 ```
+
+`len(s)` also works on a `String`, but this build **warns**: `Using
+String.__len__() is discouraged, prefer .byte_length() or .count_codepoints()`
+— because "length" is ambiguous for text. They agree for plain ASCII, but
+diverge for multi-byte characters: `"café".byte_length()` is `5` (é is 2 bytes
+in UTF-8) while `"café".count_codepoints()` is `4` (4 visible characters). Pick
+the one you actually mean. (`len()` on `List`/`Dict`/etc. does **not** warn —
+this is a `String`-specific nudge.)
 
 Build a string from mixed parts with `String(...)`:
 
@@ -221,9 +229,13 @@ def main():
     var t = minmax(9, 4)
     print(t[0], t[1])         # 4 9
 
-    var lo, var hi = minmax(9, 4)   # unpacking
+    var lo, hi = minmax(9, 4)   # unpacking — one `var` covers the whole pattern
     print(lo, hi)             # 4 9
 ```
+
+(Repeating `var` per name — `var lo, var hi = ...` — still runs, but this build
+warns: `nested 'var' or 'ref' patterns are redundant, remove the outer
+pattern`. A single `var` before the comma-separated names is enough.)
 
 ---
 

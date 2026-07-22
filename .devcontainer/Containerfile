@@ -1,11 +1,22 @@
 FROM ubuntu:24.04
 
+# Prevents apt/debconf from blocking a build on an interactive prompt (e.g.
+# tzdata's "Geographic area:" question, pulled in transitively by ca-certificates).
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates git clang \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -fsSL https://pixi.sh/install.sh | sh
 ENV PATH="/root/.pixi/bin:${PATH}"
+
+# Node.js: not needed for Mojo itself, but Claude Code MCP plugins launched via
+# `npx` (e.g. the context7 plugin: `npx -y @upstash/context7-mcp`) need it —
+# without it, `claude mcp list` shows "Failed to connect" (npx: command not found).
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN curl -fsSL https://claude.ai/install.sh | bash
 ENV PATH="/root/.local/bin:${PATH}"

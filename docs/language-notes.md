@@ -69,6 +69,66 @@ def main() raises:
     var m = Python.import_module("math")   # import_module can raise
 ```
 
+## `len()` on `String` is discouraged — use `byte_length()`/`count_codepoints()`
+
+```
+warning: Using String.__len__() is discouraged, prefer .byte_length() or .count_codepoints()
+```
+
+`len(s)` still compiles and returns a value, but this build actively warns on
+it for `String` because "length" is ambiguous for text:
+
+```mojo
+var s: String = "café"
+print(s.byte_length())        # 5  — UTF-8 bytes (é is 2 bytes)
+print(s.count_codepoints())   # 4  — visible characters
+```
+
+The two agree for plain ASCII (which is why `len()` "looks fine" until you hit
+non-ASCII text). This warning is **`String`-specific** — `len()` on `List`,
+`Dict`, etc. does not warn.
+
+## There is no runtime `type()` — types are a compile-time thing
+
+Python's `type(x)` is a **runtime** call: it inspects a live object and returns
+a type object you can print, compare, or store. Mojo is statically typed —
+every variable's type is fixed at **compile time**, so there's no runtime
+registry of "what type is this value" to query, and no `isinstance()` either
+(`use of unknown declaration 'isinstance'`).
+
+The closest equivalent is the builtin **`type_of(x)`**, but it's a
+*compile-time* type expression (like C++'s `decltype`), not a runtime value —
+you can't `print()` it or convert it with `String(...)`:
+
+```mojo
+def main():
+    var x = 42
+    print(type_of(x))          # error: could not convert ... to 'Writable'
+```
+
+Its real use is as a type **annotation**, so you can name "the same type as
+this other variable" without hardcoding it:
+
+```mojo
+def main():
+    var x: Int = 42
+    var y: type_of(x) = 10     # y's type is inferred from x's type
+    print(y)                   # 10
+```
+
+**If you specifically need a printable type name at runtime** (e.g. for
+debug output), that's a job for Python interop, not Mojo's own type system —
+Python's real `type()` still works on a `PythonObject`:
+
+```mojo
+from std.python import Python
+
+def main() raises:
+    var builtins = Python.import_module("builtins")
+    var x = Python.evaluate("42")
+    print(builtins.type(x))    # <class 'int'>
+```
+
 ## Testing
 
 The `testing` module exists here as `from std.testing import assert_equal`.
