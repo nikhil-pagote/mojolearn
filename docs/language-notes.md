@@ -129,7 +129,7 @@ def main() raises:
     print(builtins.type(x))    # <class 'int'>
 ```
 
-## No `lambda` — use a nested `def`, and `@parameter` to capture
+## No `lambda` — use a nested `def`, with `capturing` (or `@parameter`) to capture
 
 There is no `lambda` keyword. The compiler's own error is explicit:
 
@@ -137,30 +137,57 @@ There is no `lambda` keyword. The compiler's own error is explicit:
 error: lambda expressions are not supported; define a nested function with 'def'
 ```
 
+(`lambda` did exist very early in Mojo's history — Context7's indexed archive
+of a 2023 release note still shows it — but it's long gone from this build.)
+
 A plain nested `def` works as a local helper, but **cannot** see variables
 from the enclosing function — that fails with `Could not infer capture
-convention of the captured value <name>`. To actually capture an outer
-variable, decorate the nested `def` with `@parameter`:
+convention of the captured value <name>`. There are **two ways** to make it a
+real capturing closure, both verified to give identical results:
 
 ```mojo
 def main():
-    def add_one(x: Int) -> Int:      # plain nested def — no outer access
+    def add_one(x: Int) -> Int:          # plain nested def — no outer access
         return x + 1
-    print(add_one(5))                # 6
+    print(add_one(5))                    # 6
 
     var n = 10
-    @parameter
-    def add_n(x: Int) -> Int:        # @parameter — CAN capture `n`
+
+    # Option 1: the `capturing` function-effect keyword — goes right after
+    # the parameter list, BEFORE the `->` return type (a common mistake is
+    # putting it after the return type, which is a parse error).
+    def add_n(x: Int) capturing -> Int:
         return x + n
-    print(add_n(5))                  # 15
+    print(add_n(5))                      # 15
+
+    # Option 2: the @parameter decorator — equivalent for this purpose.
+    @parameter
+    def add_n2(x: Int) -> Int:
+        return x + n
+    print(add_n2(5))                     # 15
 ```
 
-**Current limitation:** a `@parameter`-capturing closure can't be assigned to
-a variable or passed around as a runtime value yet —
+**Current limitation (still true either way):** a capturing closure can't be
+assigned to a variable or passed around as a plain runtime value —
 `var f = add_n` fails with `TODO: capturing closures cannot be materialized
-as runtime values`. It's usable immediately (e.g. as a compile-time argument
-to another `@parameter`-generic function), just not yet a first-class value
-the way a Python closure is.
+as runtime values`. It's usable immediately, though, including as a
+compile-time argument to a higher-order function that declares a matching
+parameter type:
+
+```mojo
+def use_closure[func: def(Int) capturing [_] -> Int](num: Int) -> Int:
+    return func(num)
+
+def main():
+    var x = 1
+    @parameter
+    def add(i: Int) -> Int:
+        return x + i
+    print(use_closure[add](2))           # 3
+```
+
+So it's not yet a first-class value the way a Python closure is — but it's
+more usable than "capture, then immediately call" alone.
 
 ## String slicing needs `byte=`/`codepoint=` — and codepoint-slicing multi-byte text is buggy here
 
