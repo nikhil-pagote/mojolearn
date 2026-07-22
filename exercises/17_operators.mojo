@@ -1,5 +1,7 @@
-# Operators: arithmetic, comparison, logical (incl. short-circuit, `in`,
-# `is`), bitwise, and operator overloading on a custom struct.
+# Operators, in logical groups: arithmetic -> comparison (incl. `in`, `is`,
+# which Python treats as the same category) -> boolean logic (incl.
+# short-circuit) -> bitwise -> augmented assignment -> operator overloading
+# on a custom struct.
 # Run: pixi run mojo run exercises/17_operators.mojo
 
 from std.collections import Dict, Optional
@@ -36,7 +38,9 @@ struct Vec2(Copyable, Movable, Writable):
 
 
 def main():
-    # --- arithmetic ---
+    # ============================================================
+    # 1. ARITHMETIC
+    # ============================================================
     print(7 + 3, 7 - 3, 7 * 3, 7 // 3, 7 % 3, 2**3)  # 10 4 21 2 1 8
 
     # `/` between two Int values TRUNCATES to an Int in this build — unlike
@@ -52,32 +56,14 @@ def main():
     # (not C's truncate-toward-zero):
     print(-7 // 3, -7 % 3)  # -3 2
 
-    # --- comparison ---
+    # ============================================================
+    # 2. COMPARISON — Python treats ==, !=, <, >, in, is (and their
+    # negations) as the same operator category/precedence; grouped that
+    # way here too, rather than splitting `in`/`is` off into "logical".
+    # ============================================================
     print(
         5 == 5, 5 != 3, 5 < 3, 5 > 3, 5 <= 5, 5 >= 6
     )  # True True False True True False
-
-    # --- logical --- (using variables — literal `True and False` etc. makes
-    # the compiler constant-fold and warn about the "always known" result)
-    var t = True
-    var f = False
-    print(t and f, t or f, not t)  # False True False
-
-    # `and`/`or` return the actual VALUE, not a coerced Bool — same as
-    # Python, and short-circuit (the right side is skipped once the result
-    # is already known).
-    var zero = 0
-    var five = 5
-    print(zero or five)  # 5  (not True/False)
-
-    def noisy(label: String, val: Bool) -> Bool:
-        print("  evaluated:", label)
-        return val
-
-    print("short-circuit and:")
-    _ = noisy("left", False) and noisy("right", True)  # only "left" prints
-    print("short-circuit or:")
-    _ = noisy("left", True) or noisy("right", True)  # only "left" prints
 
     # --- membership: `in` / `not in` work the same way across every
     # collection — String (substring), List, Set (element), Dict (KEY,
@@ -98,10 +84,39 @@ def main():
     var maybe: Optional[Int] = None
     print(maybe is None)  # True
 
-    # --- bitwise ---
+    # ============================================================
+    # 3. BOOLEAN LOGIC — combines the comparison results above.
+    # (using variables — literal `True and False` etc. makes the compiler
+    # constant-fold and warn about the "always known" result)
+    # ============================================================
+    var t = True
+    var f = False
+    print(t and f, t or f, not t)  # False True False
+
+    # `and`/`or` return the actual VALUE, not a coerced Bool — same as
+    # Python, and short-circuit (the right side is skipped once the result
+    # is already known).
+    var zero = 0
+    var five = 5
+    print(zero or five)  # 5  (not True/False)
+
+    def noisy(label: String, val: Bool) -> Bool:
+        print("  evaluated:", label)
+        return val
+
+    print("short-circuit and:")
+    _ = noisy("left", False) and noisy("right", True)  # only "left" prints
+    print("short-circuit or:")
+    _ = noisy("left", True) or noisy("right", True)  # only "left" prints
+
+    # ============================================================
+    # 4. BITWISE
+    # ============================================================
     print(6 & 3, 6 | 3, 6 ^ 3, ~6, 1 << 3, 16 >> 2)  # 2 7 5 -7 8 4
 
-    # --- augmented assignment ---
+    # ============================================================
+    # 5. AUGMENTED ASSIGNMENT
+    # ============================================================
     var n = 10
     n += 5
     n -= 2
@@ -109,7 +124,11 @@ def main():
     n //= 3
     print("augmented:", n)  # augmented: 8
 
-    # --- operator overloading on a custom struct ---
+    # ============================================================
+    # 6. OPERATOR OVERLOADING — putting the categories above to use on a
+    # custom type (see Vec2 above: __add__, __iadd__, __neg__, __eq__,
+    # __lt__, and Writable/write_to for printing).
+    # ============================================================
     var a = Vec2(1, 2)
     var b = Vec2(3, 4)
     print(a + b)  # (4, 6)
