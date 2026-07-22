@@ -216,6 +216,29 @@ and it prints as a mangled replacement character. Pure-ASCII text is
 unaffected (1 byte == 1 codepoint there, so the bug can't manifest). Prefer
 `byte=` slicing when correctness with non-ASCII content matters.
 
+## No f-strings — use `t"..."` (template strings) instead
+
+`f"..."` is a parse error in this build. The interpolation equivalent uses a
+**`t` prefix**:
+
+```mojo
+var name: String = "World"
+print(t"Hello, {name}!")     # Hello, World!
+print(t"1 + 1 = {1 + 1}")    # 1 + 1 = 2
+```
+
+Two things to know:
+
+- **`t"..."` does NOT implicitly convert to `String`.** It produces a distinct
+  `TString[...]` type — `var s: String = t"n={n}"` fails with `cannot
+  implicitly convert 'TString[...]' value to 'String'`. Wrap it explicitly:
+  `String(t"n={n}")` (this is also why it works fine directly inside `print(...)`
+  or concatenated with `+ String(...)`, without a separate conversion step).
+- **No Python-style format specs.** `t"{x:.2f}"` is explicitly rejected:
+  `format specifiers are not supported in t-strings; format the value
+  manually before interpolating`. Precision/width formatting has to happen
+  before interpolation, not inside the `{...}`.
+
 ## Testing
 
 The `testing` module exists here as `from std.testing import assert_equal`.
