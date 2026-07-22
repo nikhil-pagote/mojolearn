@@ -254,6 +254,66 @@ def main():
 warns: `nested 'var' or 'ref' patterns are redundant, remove the outer
 pattern`. A single `var` before the comma-separated names is enough.)
 
+### Set
+
+Unordered, unique elements — with `|` (union) and `&` (intersection):
+
+```mojo
+from std.collections import Set
+
+def main():
+    var a = Set[Int](1, 2, 3)
+    var b: Set[Int] = {2, 3, 4}   # {...} set-literal syntax also works
+    a.add(1)                      # duplicate — no effect
+    print(len(a))                 # 3
+    print(a | b)                  # {1, 2, 3, 4}
+    print(a & b)                  # {2, 3}
+```
+
+### Comprehensions
+
+List, dict, and set comprehensions all work, with an optional `if` filter —
+but see the note below: there are **no generators**.
+
+```mojo
+def main():
+    var squares = [n * n for n in range(5)]
+    print(squares)                          # [0, 1, 4, 9, 16]
+
+    var evens = [n for n in range(10) if n % 2 == 0]
+    print(evens)                            # [0, 2, 4, 6, 8]
+
+    var lookup = {n: n * n for n in range(4)}
+    print(lookup)                           # {0: 0, 1: 1, 2: 4, 3: 9}
+
+    var uniq = {n % 3 for n in range(6)}
+    print(uniq)                             # {0, 1, 2}
+```
+
+**No generators in this build.** Neither generator expressions
+(`(x for x in ...)`) nor generator functions (`yield`) are supported —
+`(x for x in range(5))` fails with `expected ')' in parenthesized expression`,
+and `yield` fails with `unexpected token in expression`. Comprehensions build
+the whole collection eagerly; there's no lazy-iterator equivalent yet.
+
+### Variant — Mojo's `Union` equivalent
+
+There is no `Union` type by that name. The equivalent is a tagged union,
+`Variant[T1, T2, ...]`, from `std.utils` — check the active type with
+`.isa[T]()`, extract it with `v[T]`:
+
+```mojo
+from std.utils import Variant
+
+def main():
+    var v: Variant[Int, String] = 42
+    if v.isa[Int]():
+        print(v[Int])              # 42
+    v = String("now a string")
+    if v.isa[String]():
+        print(v[String])           # now a string
+```
+
 ---
 
 ## 6. Structs
@@ -365,6 +425,54 @@ def main():
 The rule to remember: anything that can `raise` must either be inside a
 `try/except`, or be in a function itself marked `raises`.
 
+### The rest of the toolkit: else, finally, bare except, re-raise
+
+```mojo
+def main():
+    # else: runs only when the try block did NOT raise
+    try:
+        print(risky(5))
+    except e:
+        print("caught:", e)
+    else:
+        print("no exception occurred")
+
+    # finally: always runs, exception or not
+    try:
+        raise Error("boom")
+    except e:
+        print("caught:", e)
+    finally:
+        print("cleanup always runs")
+
+    # bare `except:` — catch-all, no variable
+    try:
+        raise Error("boom")
+    except:
+        print("caught something")
+```
+
+A bare `raise` (no argument) inside an `except` block re-raises the
+currently-caught error — useful for "log it, then let the caller handle it
+too":
+
+```mojo
+def inner() raises:
+    raise Error("inner failure")
+
+def outer() raises:
+    try:
+        inner()
+    except:
+        print("logging then re-raising")
+        raise            # re-raises the same error
+```
+
+`except e:` binds an `Error` value — extract its message explicitly with
+`String(e)` if you need a `String` rather than just printing it. `Error(...)`
+also accepts multiple arguments, joined like `print()`/`String()`:
+`Error("code=", 404, " not found")`.
+
 ---
 
 ## 9. A taste of performance: SIMD
@@ -439,10 +547,10 @@ any of them with `pixi run mojo run exercises/<file>`:
 | `03_variables.mojo` | §1–2 variables & all supported scalar types |
 | `04_functions.mojo` | §3 functions, defaults, `raises` |
 | `05_control_flow.mojo` | §4 if/elif/else, ternary, loops |
-| `06_collections.mojo` | §5 List, Dict, Optional, tuples |
+| `06_collections.mojo` | §5 List, Dict, Optional, tuples, Set, comprehensions, Variant |
 | `07_structs.mojo` | §6 structs, methods, `mut self` |
 | `08_traits_generics.mojo` | §7 traits & generics |
-| `09_error_handling.mojo` | §8 raise / try / except |
+| `09_error_handling.mojo` | §8 raise / try / except / else / finally / re-raise |
 | `10_simd.mojo` | §9 SIMD |
 
 ## Next steps
