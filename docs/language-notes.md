@@ -239,6 +239,61 @@ Two things to know:
   manually before interpolating`. Precision/width formatting has to happen
   before interpolation, not inside the `{...}`.
 
+## `Int / Int` truncates — unlike Python, `/` is not always true division
+
+In Python, `/` **always** produces a float, even for two ints (`7 / 3 ==
+2.3333...`). In this build, `/` between two `Int` values **truncates to an
+Int**:
+
+```mojo
+print(7 / 3)   # 2   — NOT 2.333...
+```
+
+This is a genuine silent-bug trap — it doesn't error, it just silently gives
+an integer result where Python-honed instincts expect a float. Confirmed via
+`type_of(7 / 3)` resolving to `Int`, not `Float64`.
+
+To force true division, convert to `Float64` first:
+
+```mojo
+print(Float64(7) / Float64(3))   # 2.3333333333333335
+```
+
+(Mixing an already-`Float64` operand with an `Int` also works, but currently
+triggers a `deprecated implicit conversion from 'Int' to 'Float64'` warning —
+prefer explicit `Float64(...)` on both sides.)
+
+Floor division (`//`) and modulo (`%`) round toward **negative infinity**,
+matching Python's behavior (not C's truncate-toward-zero):
+
+```mojo
+print(-7 // 3, -7 % 3)   # -3 2
+```
+
+## Making a struct printable: `Writable` + `write_to`, not `__str__`/`Stringable`
+
+Python instinct says implement `__str__` and maybe inherit from something
+`Stringable`. In this build, `Stringable` isn't even a resolvable name
+(`use of unknown declaration 'Stringable'`), and a bare `__str__` method is
+**not enough** — `print(x)` and `String(x)` both require the struct to
+explicitly conform to the **`Writable`** trait with a `write_to` method:
+
+```mojo
+@fieldwise_init
+struct Vec2(Writable):
+    var x: Int
+    var y: Int
+
+    def write_to[W: Writer](self, mut writer: W):
+        writer.write("(", self.x, ", ", self.y, ")")
+
+def main():
+    var v = Vec2(1, 2)
+    print(v)              # (1, 2)
+    var s: String = String(v)
+    print(s)               # (1, 2)
+```
+
 ## Testing
 
 The `testing` module exists here as `from std.testing import assert_equal`.

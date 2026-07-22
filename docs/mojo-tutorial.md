@@ -670,6 +670,7 @@ any of them with `pixi run mojo run exercises/<file>`:
 | `14_comprehensions.mojo` | §5 list/dict/set comprehensions, `if` filters, no generators |
 | `15_no_inheritance.mojo` | §6 no classes, no struct inheritance — composition + traits instead |
 | `16_struct_constructors.mojo` | §6 `__init__` overloading, defaults, `@staticmethod` factories, `@fieldwise_init` |
+| `17_operators.mojo` | Arithmetic/comparison/logical/bitwise operators, `Int/Int` truncation gotcha, operator overloading (`__add__`, `__eq__`, `Writable`) |
 
 ## Next steps
 
