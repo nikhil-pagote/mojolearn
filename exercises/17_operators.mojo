@@ -1,6 +1,8 @@
-# Operators: arithmetic, comparison, logical, bitwise, and operator
-# overloading on a custom struct.
+# Operators: arithmetic, comparison, logical (incl. short-circuit, `in`,
+# `is`), bitwise, and operator overloading on a custom struct.
 # Run: pixi run mojo run exercises/17_operators.mojo
+
+from std.collections import Dict, Optional
 
 
 @fieldwise_init
@@ -60,6 +62,41 @@ def main():
     var t = True
     var f = False
     print(t and f, t or f, not t)  # False True False
+
+    # `and`/`or` return the actual VALUE, not a coerced Bool — same as
+    # Python, and short-circuit (the right side is skipped once the result
+    # is already known).
+    var zero = 0
+    var five = 5
+    print(zero or five)  # 5  (not True/False)
+
+    def noisy(label: String, val: Bool) -> Bool:
+        print("  evaluated:", label)
+        return val
+
+    print("short-circuit and:")
+    _ = noisy("left", False) and noisy("right", True)  # only "left" prints
+    print("short-circuit or:")
+    _ = noisy("left", True) or noisy("right", True)  # only "left" prints
+
+    # --- membership: `in` / `not in` work the same way across every
+    # collection — String (substring), List, Set (element), Dict (KEY,
+    # like Python — not value). ---
+    var text: String = "hello world"
+    var xs = [1, 2, 3]
+    var lookup = Dict[String, Int]()
+    lookup["a"] = 1
+    print("world" in text, "xyz" not in text)  # True True
+    print(2 in xs, 5 in xs)  # True False
+    print("a" in lookup, "z" in lookup)  # True False
+
+    # --- identity: `is` / `is not` — narrower than Python's. Python's `is`
+    # works on any object. Here it only works for types that implement
+    # `__is__` (e.g. Optional's `is None` check); plain value types like Int
+    # don't implement it at all (`'Int' does not implement the '__is__'
+    # method` — not a runtime False, a compile error). ---
+    var maybe: Optional[Int] = None
+    print(maybe is None)  # True
 
     # --- bitwise ---
     print(6 & 3, 6 | 3, 6 ^ 3, ~6, 1 << 3, 16 >> 2)  # 2 7 5 -7 8 4

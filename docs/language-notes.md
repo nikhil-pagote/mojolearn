@@ -270,6 +270,32 @@ matching Python's behavior (not C's truncate-toward-zero):
 print(-7 // 3, -7 % 3)   # -3 2
 ```
 
+## `is` / `is not` only work where a type implements `__is__` — narrower than Python
+
+In Python, `is` (identity comparison) works on *any* object. Here, it only
+works for types that implement `__is__` — trying it on a plain value type
+like `Int` is a **compile error**, not a runtime `False`:
+
+```mojo
+var x = 5
+var y = 5
+print(x is y)   # error: 'Int' does not implement the '__is__' method
+```
+
+The idiomatic use that **does** work is checking `Optional` for emptiness:
+
+```mojo
+var maybe: Optional[Int] = None
+print(maybe is None)   # True
+```
+
+`and`/`or`/`not`, short-circuit evaluation, and `in`/`not in` all behave
+exactly like Python, including on custom collections — `and`/`or` return the
+actual value rather than a coerced `Bool` (`0 or 5` → `5`), the right side of
+`and`/`or` is skipped once the result is already determined, and `in` works
+uniformly across `String` (substring), `List`/`Set` (element), and `Dict`
+(checks **keys**, like Python — not values). `is` is the one outlier.
+
 ## Making a struct printable: `Writable` + `write_to`, not `__str__`/`Stringable`
 
 Python instinct says implement `__str__` and maybe inherit from something
