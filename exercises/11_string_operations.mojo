@@ -51,3 +51,14 @@ def main():
     # --- iterate codepoints ---
     for c in String("abc").codepoints():
         print(c)  # a / b / c
+
+    # --- interpolation: no f-strings here — use `t"..."` (template strings)
+    # instead. Works inside print() directly: ---
+    print(t"n = {n}, doubled = {n * 2}")  # n = 42, doubled = 84
+    # A t"..." does NOT implicitly convert to String — it's a distinct
+    # TString type. Wrap it explicitly when you need an actual String:
+    var greeting: String = String(t"hello {s.strip()}")
+    print(greeting)  # hello Hello Mojo
+    # No Python-style format specs inside the braces — `t"{n:.2f}"` is
+    # rejected with "format specifiers are not supported in t-strings;
+    # format the value manually before interpolating".
