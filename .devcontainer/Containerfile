@@ -14,3 +14,11 @@ ENV PATH="/root/.local/bin:${PATH}"
 # If these diverge, `pixi install` bakes stale absolute paths into the Mojo/MAX
 # config (modular.cfg) and mojo fails with "unable to locate module 'std'".
 WORKDIR /workspaces/mojo
+
+# Point Mojo's Python interop at the env's CPython so a compiled binary run
+# directly (`./pyintop`, outside `pixi run`) can load libpython. pixi.toml's
+# [activation.env] covers `pixi run`/`pixi shell`; this ENV covers bare shells.
+# Literal path: a Dockerfile ENV does not expand $PWD, and it stays valid because
+# WORKDIR == workspaceFolder == /workspaces/mojo. libpython3.so is the
+# version-agnostic symlink to the bundled CPython.
+ENV MOJO_PYTHON_LIBRARY="/workspaces/mojo/.pixi/envs/default/lib/libpython3.so"

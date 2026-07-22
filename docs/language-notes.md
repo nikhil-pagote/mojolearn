@@ -28,6 +28,32 @@ module '<name>'`, while `print`/`main` worked. Since the compiler insists
 `'std' is required for all normal mojo compiles` and the package is literally
 named `std`, we tried the `std.` prefix — and every module resolved.
 
+## Every program needs `def main()` — no top-level code
+
+Unlike a Python script (which runs top-to-bottom, so a bare `print("hi")`
+executes), a `.mojo` file compiled or run with `mojo run` / `mojo build` has a
+single entry point: **`def main()`**. Execution starts there, like `main()` in
+C/C++/Rust.
+
+Executable statements are **not allowed at file scope at all** — not even
+alongside a `main`:
+
+```mojo
+print("hi")        # error: expressions must not appear at file scope;
+                   #        move this into a function body
+```
+
+File scope is for *declarations only* (`def`, `struct`, `trait`, `alias`,
+`from ... import`). Put runnable code inside a function:
+
+```mojo
+def main():
+    print("hi")    # ✅
+```
+
+(The REPL — `mojo repl` — and notebook cells *do* evaluate statements
+interactively; this rule is about `.mojo` source files.)
+
 ## `def main()` is non-raising by default
 
 Calling a fallible (raising) API from a plain `def main()` is a compile error:

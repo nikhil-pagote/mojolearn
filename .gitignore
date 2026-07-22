@@ -8,3 +8,8 @@
 
 # Local, machine-specific Claude Code settings
 .claude/settings.local.json
+
+# Compiled Mojo binaries (built alongside .mojo sources, e.g. `mojo build -o x`)
+/exercises/*
+!/exercises/*.mojo
+build/

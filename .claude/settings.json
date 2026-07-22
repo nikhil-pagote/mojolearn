@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pixi run mojo run *)",
+      "Bash(pixi run mojo build *)",
+      "Bash(pixi run mojo *)",
+      "Bash(pixi run mojo-lsp-server *)",
+      "Bash(pixi install)",
+      "Bash(pixi list *)",
+      "Bash(pixi info)",
+      "Bash(pixi tree *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git branch *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/mojo-format-lint.sh\"",
+            "timeout": 90,
+            "statusMessage": "Formatting & linting Mojo..."
+          }
+        ]
+      }
+    ]
+  }
+}

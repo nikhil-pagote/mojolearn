@@ -39,9 +39,11 @@ server logs`** → look for the Mojo server.
 
 ## Notes & caveats
 
-- **Formatter:** `mojo format` is a **no-op in this build (1.0.0b2)** — it leaves
-  code unchanged — so we do *not* wire up a Zed formatter for Mojo. Revisit when
-  a later Mojo release implements it.
+- **Formatter:** `mojo format` (Black-based `mblack`) **works** and is wired up
+  in `.zed/settings.json` as an external formatter (`pixi run mojo format -q -`)
+  with format-on-save. Note: it only works because we fixed a stale-shebang bug
+  in `mblack` — see [troubleshooting.md](troubleshooting.md) if it ever silently
+  stops formatting.
 - **Build failures:** dev-extension installs can hit Wasm-ABI / tree-sitter
   grammar compile errors depending on the Zed version. If that happens, update
   Zed to the latest, or try the alternatives

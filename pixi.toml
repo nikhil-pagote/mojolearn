@@ -6,5 +6,11 @@ version = "0.1.0"
 
 [tasks]
 
+# Make CPython discoverable so Mojo's Python interop works without callers
+# having to set MOJO_PYTHON_LIBRARY by hand. $CONDA_PREFIX resolves to this
+# env, and libpython3.so is the version-agnostic symlink.
+[activation.env]
+MOJO_PYTHON_LIBRARY = "$CONDA_PREFIX/lib/libpython3.so"
+
 [dependencies]
 mojo = ">=1.0.0b2,<2"
