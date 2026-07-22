@@ -273,7 +273,8 @@ def main():
 ### Comprehensions
 
 List, dict, and set comprehensions all work, with an optional `if` filter —
-but see the note below: there are **no generators**.
+but see the note below: there are **no generators**. Runnable exercise:
+`exercises/14_comprehensions.mojo`.
 
 ```mojo
 def main():
@@ -547,7 +548,7 @@ any of them with `pixi run mojo run exercises/<file>`:
 | `03_variables.mojo` | §1–2 variables & all supported scalar types |
 | `04_functions.mojo` | §3 functions, defaults, `raises` |
 | `05_control_flow.mojo` | §4 if/elif/else, ternary, loops |
-| `06_collections.mojo` | §5 List, Dict, Optional, tuples, Set, comprehensions, Variant |
+| `06_collections.mojo` | §5 List, Dict, Optional, tuples, Set, Variant |
 | `07_structs.mojo` | §6 structs, methods, `mut self` |
 | `08_traits_generics.mojo` | §7 traits & generics |
 | `09_error_handling.mojo` | §8 raise / try / except / else / finally / re-raise |
@@ -555,6 +556,7 @@ any of them with `pixi run mojo run exercises/<file>`:
 | `11_string_operations.mojo` | String methods: case, strip, split/join, replace, find, slicing (`byte=`/`codepoint=`), length, `t"..."` interpolation |
 | `12_file_operations.mojo` | File I/O: open/read/write/close, `with`, append mode, existence checks, error handling |
 | `13_closures.mojo` | No `lambda`; capturing via `capturing` keyword or `@parameter`; closures as compile-time args |
+| `14_comprehensions.mojo` | §5 list/dict/set comprehensions, `if` filters, no generators |
 
 ## Next steps
 

@@ -1,5 +1,6 @@
 # Tutorial §5: collections — List, list literals, Dict, Optional, tuples,
-# Set, comprehensions (list/dict/set), and Variant (Mojo's Union equivalent).
+# Set, and Variant (Mojo's Union equivalent).
+# Comprehensions have their own file: exercises/14_comprehensions.mojo.
 # Dict access can raise, so main is `raises`.
 # Run: pixi run mojo run exercises/06_collections.mojo
 
@@ -49,16 +50,6 @@ def main() raises:
     print("set size:", len(a))  # set size: 3
     print("union:", a | b)  # union: {1, 2, 3, 4}
     print("intersection:", a & b)  # intersection: {2, 3}
-
-    # Comprehensions — list, dict, and set, all with an optional `if` filter
-    var squares = [n * n for n in range(5)]
-    print("list comp:", squares)  # list comp: [0, 1, 4, 9, 16]
-    var evens = [n for n in range(10) if n % 2 == 0]
-    print("filtered:", evens)  # filtered: [0, 2, 4, 6, 8]
-    var lookup = {n: n * n for n in range(4)}
-    print("dict comp:", lookup)  # dict comp: {0: 0, 1: 1, 2: 4, 3: 9}
-    var uniq = {n % 3 for n in range(6)}
-    print("set comp:", uniq)  # set comp: {0, 1, 2}
 
     # Variant — Mojo's Union equivalent (a tagged union of fixed types; there
     # is no `Union` type by that name). .isa[T]() checks which type is active,
