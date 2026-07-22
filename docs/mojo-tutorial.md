@@ -402,6 +402,85 @@ def main():
     print(Cat().speak())      # meow
 ```
 
+### More constructor patterns
+
+`__init__` can be overloaded, take default values, and structs can have
+`@staticmethod` factory functions (the closest thing to a "classmethod"):
+
+```mojo
+struct Point:
+    var x: Int
+    var y: Int
+
+    def __init__(out self, x: Int, y: Int):     # overload 1
+        self.x = x
+        self.y = y
+
+    def __init__(out self, both: Int):          # overload 2 — Point(5) -> (5, 5)
+        self.x = both
+        self.y = both
+
+    @staticmethod
+    def origin() -> Point:                      # named factory: Point.origin()
+        return Point(0, 0)
+
+def main():
+    print(Point(3, 4).x, Point(5).x)   # 3 5
+    print(Point.origin().x)            # 0
+```
+
+Default values work as you'd expect: `def __init__(out self, x: Int = 0):`.
+
+### There are no classes, and structs cannot inherit from structs
+
+```mojo
+class Animal: ...
+```
+```
+error: classes are not supported yet
+```
+
+```mojo
+struct Dog(Animal):   # Animal is a struct, not a trait
+```
+```
+error: structs only conform to traits or trait compositions; remove
+the struct type from the conformance list
+```
+
+Both are compiler errors in this build — not a style choice, a hard
+limitation. Mojo's answers to "reuse behavior across types" are:
+
+- **Composition** ("has-a"): put one struct inside another as a field, and
+  delegate to it explicitly. There's no automatic field/method inheritance.
+- **Traits** ("can-do"): completely unrelated structs implement the same
+  trait and work with the same generic code — see §7 below. No shared base
+  type, no inherited implementation, just a shared contract.
+
+```mojo
+@fieldwise_init
+struct Engine(Copyable, Movable):
+    var horsepower: Int
+
+@fieldwise_init
+struct Car(Copyable, Movable):
+    var engine: Engine       # composition: Car HAS an Engine
+    var name: String
+
+    def describe(self) -> String:
+        return self.name + " (" + String(self.engine.horsepower) + " hp)"
+
+def main():
+    var e = Engine(300)
+    var c = Car(e^, "Tesla")   # `^` transfers e — it isn't implicitly
+    print(c.describe())        # copyable (see docs/language-notes.md)
+    # -> Tesla (300 hp)
+```
+
+Runnable exercises: `exercises/15_no_inheritance.mojo` (composition + traits
+as the inheritance substitute) and `exercises/16_struct_constructors.mojo`
+(overloading, defaults, static factories, `@fieldwise_init`).
+
 ---
 
 ## 7. Traits and generics
@@ -589,6 +668,8 @@ any of them with `pixi run mojo run exercises/<file>`:
 | `12_file_operations.mojo` | File I/O: open/read/write/close, `with`, append mode, existence checks, error handling |
 | `13_closures.mojo` | No `lambda`; capturing via `capturing` keyword or `@parameter`; closures as compile-time args |
 | `14_comprehensions.mojo` | §5 list/dict/set comprehensions, `if` filters, no generators |
+| `15_no_inheritance.mojo` | §6 no classes, no struct inheritance — composition + traits instead |
+| `16_struct_constructors.mojo` | §6 `__init__` overloading, defaults, `@staticmethod` factories, `@fieldwise_init` |
 
 ## Next steps
 
