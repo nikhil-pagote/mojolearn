@@ -1,3 +1,11 @@
+---
+title: Language Notes
+description: Verified gotchas and divergences from generic Mojo docs, confirmed against this build's compiler.
+status: verified
+tags: [language, gotchas, mojo-1.0.0b2]
+updated: 2026-07-23
+---
+
 # Language Notes (verified on Mojo 1.0.0b2, this build)
 
 These differ from a lot of online material, which targets other versions.
@@ -376,6 +384,133 @@ def main():
     var s: String = String(v)
     print(s)               # (1, 2)
 ```
+
+## `@fieldwise_init` vs `Copyable`/`Movable`/`Writable` — a decorator vs ordinary trait names, neither is a keyword
+
+Two easy-to-conflate things that show up together on almost every struct in
+this repo (e.g. `exercises/03_operators.mojo`'s `Vec2`):
+
+```mojo
+@fieldwise_init
+struct Vec2(Copyable, Movable, Writable):
+    var x: Int
+    var y: Int
+```
+
+**`@fieldwise_init` is a decorator, not a keyword.** It's compile-time
+codegen: it looks at the struct's `var` fields and writes a constructor for
+you, one parameter per field, in declaration order. Without it, you'd write
+that `__init__` by hand:
+
+```mojo
+struct Vec2(Copyable, Movable, Writable):
+    var x: Int
+    var y: Int
+
+    def __init__(out self, x: Int, y: Int):
+        self.x = x
+        self.y = y
+```
+
+It replaced the older `@value` decorator from earlier Mojo versions and
+composes fine with hand-written `__init__` overloads (see
+`exercises/11_struct_constructors.mojo`).
+
+**`Copyable`, `Movable`, `Writable` are not keywords either — they're
+ordinary trait names**, defined in the standard library and auto-available
+like `Int`/`String`/`print` (no import needed). They're the same kind of
+symbol as a trait you define yourself (`Greet`, `Shape`, ...) — the compiler
+just treats conformance to these *specific* traits as permission to do
+certain built-in operations:
+
+- `Copyable` → allows plain `b = a` to compile (copy)
+- `Movable` → allows `b = a^` to compile (transfer — see the `^` section
+  above)
+- `Writable` → allows `print(x)`/`String(x)` to work, by requiring the
+  `write_to` method shown above
+
+Proof they're not reserved words — a real keyword can't be used as a plain
+identifier, but these can:
+
+```mojo
+def main():
+    var Copyable = 5
+    var Movable = "not a keyword"
+    print(Copyable, Movable)   # 5 not a keyword
+```
+
+```mojo
+def main():
+    var struct = 5   # error: unexpected token in expression
+```
+
+## How `+` reaches `__add__`, and how `print` reaches `write_to`
+
+Both are the same kind of mechanism — an operator/builtin function is a thin
+layer that the compiler rewrites into a method call it looks up on the
+value's type. Neither is magic tied to `Vec2` specifically.
+
+**`a + b` is sugar for `a.__add__(b)`.** The compiler sees the `+` token
+between two values and rewrites it into a call to the `__add__` method on the
+left operand's type, passing the right operand as the argument. `Vec2`
+supplies that method:
+
+```mojo
+def __add__(self, other: Vec2) -> Vec2:
+    return Vec2(self.x + other.x, self.y + other.y)
+```
+
+so `a + b` literally becomes `a.__add__(b)`, which builds and returns a new
+`Vec2`. This isn't specific to `Vec2` — `+` works on *any* type that defines
+`__add__`, the same way Python's `+` dispatches to `__add__`. Proof it's a
+real method lookup, not built-in behavior for `+`: remove `__add__` from a
+struct and the compiler refuses to compile `a + b`, naming the exact missing
+method:
+
+```
+error: 'Pair' does not implement the '__add__' method
+    var c = a + b
+            ~ ^
+```
+
+Every other overloadable operator in `exercises/03_operators.mojo` follows
+the identical pattern: `==` → `__eq__`, `<` → `__lt__`, unary `-` → `__neg__`,
+`+=` → `__iadd__`, etc. — one operator token, one corresponding dunder method
+the compiler looks up on the operand's type.
+
+**`print(x)` is generic over `Writable`, and calls `write_to` on each
+argument.** `print` isn't hardcoded to know about any particular struct
+either. Its real declared signature (visible in the compiler's own error
+output when a non-conforming type is passed) is:
+
+```mojo
+def print[*Ts: Writable](*values: *Ts.values, ...)
+```
+
+Read that as: "`print` accepts any number of arguments, but every argument's
+type must conform to `Writable`." Internally, for each argument, `print`
+calls that value's `write_to` method, handing it a `writer` object connected
+to stdout — that's why `write_to` takes `mut writer: W` and *writes into it*
+(`writer.write("(", self.x, ", ", self.y, ")")`) rather than building and
+returning a `String` itself. `print` then flushes whatever was written to the
+terminal.
+
+Proof this is a real trait-conformance check, not special-cased for structs
+that "look printable": passing a struct that doesn't conform to `Writable`
+produces this exact compiler error, naming `Writable` explicitly:
+
+```
+error: invalid call to 'print': could not convert element of 'values'
+with type 'Pair' to expected type 'Writable'
+```
+
+So the end-to-end chain for `print(a + b)` is: `+` → `__add__` lookup on
+`Vec2` → new `Vec2` value → `print` → `Writable` conformance check → that
+value's `write_to` called with an internal writer → text flushed to stdout.
+
+The first compiles and runs; the second fails to parse. That's the
+difference between "a stdlib trait name that happens to unlock compiler
+behavior when conformed to" and "a token baked into the grammar."
 
 ## Testing
 

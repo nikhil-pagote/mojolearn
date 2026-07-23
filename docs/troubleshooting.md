@@ -1,3 +1,11 @@
+---
+title: Troubleshooting
+description: Fixes for errors actually hit in this devcontainer environment.
+status: verified
+tags: [troubleshooting, devcontainer]
+updated: 2026-07-22
+---
+
 # Troubleshooting
 
 Fixes for errors we've actually hit in this environment.

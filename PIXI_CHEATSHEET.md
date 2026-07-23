@@ -1,3 +1,8 @@
+---
+title: pixi Cheatsheet
+description: Quick reference for pixi commands in this Mojo workspace, tested with pixi 0.73.0.
+---
+
 # pixi Cheatsheet
 
 Quick reference for this Mojo workspace. Tested with **pixi 0.73.0**.

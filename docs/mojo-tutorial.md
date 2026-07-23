@@ -1,3 +1,11 @@
+---
+title: Mojo Tutorial
+description: Beginner-friendly, hands-on introduction to Mojo verified against this build's compiler.
+status: verified
+tags: [tutorial, beginner, mojo-1.0.0b2]
+updated: 2026-07-22
+---
+
 # Mojo Tutorial (beginner-friendly, verified on this build)
 
 A hands-on introduction to Mojo, written for **Mojo 1.0.0b2 as installed in this

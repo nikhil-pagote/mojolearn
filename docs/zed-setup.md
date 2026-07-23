@@ -1,3 +1,11 @@
+---
+title: Mojo language support in Zed
+description: Setting up the unofficial community Mojo extension for Zed against this devcontainer.
+status: reference
+tags: [zed, ide-setup]
+updated: 2026-07-22
+---
+
 # Mojo language support in Zed (devcontainer)
 
 We use Zed with this project as a **devcontainer** (Zed runs on the host, the

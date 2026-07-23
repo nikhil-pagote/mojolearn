@@ -1,3 +1,11 @@
+---
+title: Python Interop
+description: Why Mojo is not Python-dependent — CPython is loaded on demand via dlopen, not linked at build time.
+status: verified
+tags: [python-interop, mojo-1.0.0b2]
+updated: 2026-07-22
+---
+
 # Python Interop (and why Mojo is *not* Python-dependent)
 
 Mojo can call into CPython — NumPy, pandas, any Python library — as a feature.

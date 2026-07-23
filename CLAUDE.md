@@ -1,3 +1,11 @@
+---
+title: CLAUDE.md
+description: Guidance for Claude Code when working with code in this repository.
+status: reference
+tags: [claude-code, project-conventions]
+updated: 2026-07-22
+---
+
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.

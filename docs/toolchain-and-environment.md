@@ -1,3 +1,11 @@
+---
+title: Toolchain & Environment
+description: How pixi, the devcontainer, and Mojo's toolchain fit together in this workspace.
+status: verified
+tags: [toolchain, pixi, devcontainer]
+updated: 2026-07-22
+---
+
 # Toolchain & Environment
 
 ## Is Mojo a Python thing?

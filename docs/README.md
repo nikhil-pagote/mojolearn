@@ -1,3 +1,11 @@
+---
+title: Mojo Learning Notes
+description: Index of in-repo, compiler-verified Mojo learning notes.
+status: reference
+tags: [index, docs]
+updated: 2026-07-22
+---
+
 # Mojo Learning Notes
 
 In-repo notes capturing things verified **against this actual environment**
