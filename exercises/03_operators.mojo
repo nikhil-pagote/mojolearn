@@ -137,3 +137,38 @@ def main():
     print(-a)  # (-4, -6)
     print(a == Vec2(4, 6), a == b)  # True False
     print(Vec2(1, 1) < Vec2(3, 4))  # True
+
+    # ============================================================
+    # 7. TRANSFER (^) — postfix, applies to a single variable; NOT the same
+    # `^` as the bitwise XOR in section 4 above (infix, between two
+    # expressions). Operand shape disambiguates them.
+    # ============================================================
+
+    # Plain `b = a` (no `^`) COPIES — the source keeps its value.
+    var s1: String = "hello"
+    var s2 = s1
+    print(s1, s2)  # hello hello — s1 untouched
+
+    # `b = a^` TRANSFERS ownership instead of copying. Two cases, neither
+    # left runnable here (the first WARNS, the second fails to COMPILE —
+    # both would break this exercise's zero-warnings-clean convention):
+    #
+    # Trivial register type (Int) — transfer is a no-op, source stays
+    # usable, compiler just warns it had no effect:
+    #
+    #   var i1 = 10
+    #   var i2 = i1^
+    #   print(i1, i2)  # 10 10 — i1 still valid
+    #   # warning: transfer from a value of trivial register type 'Int'
+    #   #          has no effect and can be removed
+    #
+    # Resource-owning type (String, Vec2, ...) — `^` is an enforced,
+    # compile-time move: using the source again afterward is a COMPILE
+    # ERROR (`use of uninitialized value`), not a runtime deletion:
+    #
+    #   var s3: String = "world"
+    #   var s4 = s3^
+    #   print(s4)   # world
+    #   print(s3)   # error: use of uninitialized value 's3'
+    #
+    # See docs/language-notes.md's `^` section for the full writeup.
