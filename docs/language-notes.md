@@ -298,6 +298,20 @@ uniformly across `String` (substring), `List`/`Set` (element), and `Dict`
 
 ## `^` (transfer): moves a value and statically forbids further use of the source
 
+**Plain `b = a` (no `^`) copies — `a` keeps its value.** This is the case to
+rule out first, since it's easy to assume assignment always transfers:
+
+```mojo
+def main():
+    var a: String = "hello"
+    var b = a       # no ^ — plain assignment
+    print(a)        # hello — untouched
+    print(b)        # hello — independent copy
+```
+
+Both print `hello`. `a` is never emptied by a plain assignment — only the `^`
+suffix changes the semantics from copy to transfer, as below.
+
 `a^` transfers ownership of `a`'s value instead of copying it — used e.g.
 when passing a non-`Copyable`-conforming value into a constructor
 (`Car(e^, "Tesla")`, seen in `exercises/12_no_inheritance.mojo`).
