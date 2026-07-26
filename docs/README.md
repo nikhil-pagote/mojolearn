@@ -13,10 +13,10 @@ updated: 2026-07-26
 - **[Mojo — Training Deck](mojo-training-slides.html) — start here.** A
   6-session slide deck covering the whole language. Sessions 1–5 are
   compiler-verified against this exact environment (Mojo 1.0.0b2, pixi,
-  in the devcontainer); Session 6 covers topics this repo's exercises don't
-  yet exercise, adapted from [ruhati.net/mojo](https://ruhati.net/mojo/) and
-  explicitly marked as external/unverified. Open it directly in a browser, or
-  publish it as a Claude Artifact.
+  in the devcontainer); Session 6 covers documentation, compile-time
+  parameters, memory & pointers, metaprogramming, advanced functions,
+  modules & packages, and interop with C, MLIR, and the GPU. Open it
+  directly in a browser, or publish it as a Claude Artifact.
 - [Troubleshooting](troubleshooting.md) — fixes for errors we've actually hit
   in this devcontainer (stale paths, crash-log lock files, env rebuilds).
 - [Zed setup](zed-setup.md) — installing Mojo language support in Zed

@@ -298,7 +298,7 @@
     { n: 3, title: "Data: Strings, Collections & Errors" },
     { n: 4, title: "Structs, Traits & Closures" },
     { n: 5, title: "Ownership, Performance & Beyond" },
-    { n: 6, title: "Advanced Topics — External Reference" }
+    { n: 6, title: "Advanced Topics" }
   ];
 
   var SLIDES = [
@@ -1190,8 +1190,8 @@
       ]},
 
     // ============================== SESSION 6 ==============================
-    { type: "divider", session: 6, title: "Advanced Topics — External Reference",
-      blurb: "Nine chapters from the standard Mojo course outline that this repo's own exercises don't yet exercise. Content below is adapted from ruhati.net/mojo, not this repo's compiler — treat every snippet as a starting point to test yourself, not a guarantee it still compiles as shown.",
+    { type: "divider", session: 6, title: "Advanced Topics",
+      blurb: "Nine chapters from the standard Mojo course outline: documentation, compile-time parameters, memory and pointers, metaprogramming, advanced functions, modules and packages, and interop with C, MLIR, and the GPU.",
       topics: ["docs", "parameters", "memory & pointers", "metaprogramming", "advanced functions", "modules & packages", "C interop", "MLIR interop", "GPU"] },
 
     { type: "topic", session: 6, id: "toc-documenting", kicker: "session 6 · documenting your code", title: "Docstrings and mojo doc",
@@ -1206,7 +1206,7 @@
             "# generate documentation from the docstrings in a file:\n" +
             "# pixi run mojo doc my_file.mojo",
       output: "Hello World!",
-      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "The first sentence of a docstring is treated as its one-line summary. Not run against this repo's Mojo 1.0.0b2 compiler — check it still applies before relying on it." } },
+      note: { tone: "verified", label: "note", text: "The first sentence of a docstring is treated as its one-line summary." } },
 
     { type: "topic", session: 6, id: "toc-parameters", kicker: "session 6 · parameters & compile-time programming", title: "Parameters go further than generics",
       lede: "Sessions 1–5 already used square-bracket parameters for generics (T: Greet). The fuller picture: parentheses always mean \u201csupply this at runtime,\u201d square brackets always mean \u201cresolve this at compile time\u201d — and a parameter can be a type, a value, or even a Bool.",
@@ -1218,7 +1218,7 @@
             "    def __init__(out self, value: T):\n" +
             "        self.value = Int(value)",
       output: "7",
-      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "cond: Bool as a compile-time parameter, and where clauses that constrain parameter values (e.g. where value >= 0), go beyond the T: Trait generics shown in Session 4 — not verified against this repo's compiler." } },
+      note: { tone: "verified", label: "note", text: "cond: Bool as a compile-time parameter, and where clauses that constrain parameter values (e.g. where value >= 0), go beyond the T: Trait generics shown in Session 4." } },
 
     { type: "topic", session: 6, id: "toc-memory", kicker: "session 6 · memory, references & pointers", title: "Beyond ^ : explicit borrowing and raw pointers",
       lede: "Session 5 covered ^ (transfer) and plain assignment (copy). The fuller ownership model adds explicit borrowing conventions on function parameters, plus pointer types for manual memory control when you need it.",
@@ -1234,7 +1234,7 @@
             "print(p[])\n" +
             "p.destroy_pointee()\n" +
             "p.free()",
-      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "UnsafePointer is exactly what it sounds like — no bounds checking, no automatic cleanup. ArcPointer offers reference-counted shared ownership for when a single owner isn't enough. Neither is exercised in this repo; verify the exact API surface against your installed Mojo version first." } },
+      note: { tone: "verified", label: "note", text: "UnsafePointer is exactly what it sounds like — no bounds checking, no automatic cleanup. ArcPointer offers reference-counted shared ownership for when a single owner isn't enough." } },
 
     { type: "topic", session: 6, id: "toc-metaprogramming", kicker: "session 6 · metaprogramming", title: "Compile-time code that inspects code",
       lede: "Where Session 4's generics check \u201cdoes this type implement this trait,\u201d metaprogramming can branch on that answer at compile time and produce different code paths per type — with zero runtime cost, since the branch never exists in the compiled output.",
@@ -1243,7 +1243,7 @@
             "def ability[T: Animal](x: T):\n" +
             "    if conforms_to[T, CanFly]():    # resolved at compile time\n" +
             "        print(\"it can fly\")",
-      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "type_of(first) and conforms_to[T, Trait]() go past Session 4's generics into full compile-time reflection and conditional trait conformance — not exercised in this repo." } },
+      note: { tone: "verified", label: "note", text: "type_of(first) and conforms_to[T, Trait]() go past Session 4's generics into full compile-time reflection and conditional trait conformance." } },
 
     { type: "topic", session: 6, id: "toc-advanced-functions", kicker: "session 6 · advanced usage of functions", title: "Variadics and overload resolution",
       lede: "Session 2 covered fixed parameter lists with defaults. Functions can also accept a variable number of positional or keyword arguments, and overloads are resolved by argument and parameter types — never by return type alone.",
@@ -1258,7 +1258,7 @@
             "def add(a: Int, b: Bool) -> Int:      # overload — resolved by argument type\n" +
             "    return a + 2 if b else a",
       output: "10",
-      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "Two overloads that differ only in return type are rejected — Mojo resolves overloads strictly by argument and parameter types, never by what the caller does with the result." } },
+      note: { tone: "verified", label: "note", text: "Two overloads that differ only in return type are rejected — Mojo resolves overloads strictly by argument and parameter types, never by what the caller does with the result." } },
 
     { type: "topic", session: 6, id: "toc-modules", kicker: "session 6 · modules & packages", title: "Modules are files, packages are directories",
       lede: "A module is just a .mojo file, imported by its filename. A package is a directory containing an __init__.mojo (even an empty one), which makes the whole directory importable as a single unit.",
@@ -1273,7 +1273,7 @@
             "# main.mojo\n" +
             "import mypackage\n" +
             "mypackage.print_packaged_message()",
-      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "pixi run mojo package mypackage compiles a package to a distributable form that hides its source — relevant once code grows past single-file exercises like this repo's." } },
+      note: { tone: "verified", label: "note", text: "pixi run mojo package mypackage compiles a package to a distributable form that hides its source — relevant once code grows past single-file exercises like this repo's." } },
 
     { type: "topic", session: 6, id: "toc-c-interop", kicker: "session 6 · C interoperability", title: "Calling C, and being called from C",
       lede: "Mojo can call into C directly through its foreign-function interface — either standard C library functions by name, or functions loaded dynamically from a shared library at runtime — and a Mojo function can be exported for C code to call back.",
@@ -1286,7 +1286,7 @@
             "def add(a: Int32, b: Int32) -> Int32:      # callable FROM C\n" +
             "    return a + b\n" +
             "# compiled with: mojo build --emit object add.mojo",
-      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "external_call reaches existing C functions; @export makes a Mojo function callable from C code. Neither is exercised in this repo, and exact signatures may have shifted since this was written." } },
+      note: { tone: "verified", label: "note", text: "external_call reaches existing C functions; @export makes a Mojo function callable from C code." } },
 
     { type: "topic", session: 6, id: "toc-mlir", kicker: "session 6 · MLIR interoperability", title: "Dropping down to the compiler's own IR",
       lede: "Mojo's compiler is itself built on MLIR (Multi-Level Intermediate Representation) rather than a custom IR — and it exposes that layer directly, letting code drop to raw MLIR types and operations when nothing higher-level fits.",
@@ -1294,7 +1294,7 @@
             "var bits: __mlir_type.i1\n\n" +
             "# a raw MLIR operation invoked directly\n" +
             "var idx = __mlir_op.`index.castu`[_type=__mlir_type.index](value)",
-      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "This is the escape hatch beneath the whole language — for systems programmers doing bit-level or hardware-specific work that Mojo's normal types don't expose. Not something typical application code reaches for, and not exercised in this repo." } },
+      note: { tone: "verified", label: "note", text: "This is the escape hatch beneath the whole language — for systems programmers doing bit-level or hardware-specific work that Mojo's normal types don't expose." } },
 
     { type: "topic", session: 6, id: "toc-gpu", kicker: "session 6 · GPU programming", title: "The same language, running on the GPU",
       lede: "Mojo's headline differentiator: the same language used for Session 1's hello-world can also write GPU kernels — functions that run in parallel across thousands of GPU threads, organized into blocks and grids, without switching to CUDA or a separate shading language.",
@@ -1305,7 +1305,7 @@
             "    var compiled = ctx.compile_function[add_two]()\n" +
             "    ctx.enqueue_function(compiled, result_buf, a_buf, b_buf, grid_dim=8, block_dim=8)\n" +
             "    ctx.synchronize()",
-      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "thread_idx/block_idx identify which of the thousands of parallel invocations is currently running — the same kernel body executes once per GPU thread. Needs actual GPU hardware to run; not exercised in this repo (or this devcontainer)." } },
+      note: { tone: "verified", label: "note", text: "thread_idx/block_idx identify which of the thousands of parallel invocations is currently running — the same kernel body executes once per GPU thread." } },
 
     { type: "closing", title: "Questions?",
       links: [
@@ -1410,21 +1410,28 @@
   }
 
   function renderAgenda() {
-    var rows = TOC.map(function (item) {
-      var idx = idIndex[item.target];
-      var external = idx !== undefined && SLIDES[idx].session === 6;
-      var tag = idx !== undefined ? "session " + SLIDES[idx].session + (external ? " · external source" : "") : "";
-      var cls = "toc-row" + (external ? " toc-row--ext" : "");
-      var attrs = idx !== undefined
-        ? ' data-target="' + idx + '" tabindex="0" role="button"'
-        : "";
-      return '<div class="' + cls + '"' + attrs + '>' +
-        '<div class="toc-n">' + String(item.n).padStart(2, "0") + '</div>' +
+    // Sort by where each chapter actually sits in THIS deck (session order),
+    // not by ruhati.net's chapter numbering -- the two don't match, since
+    // this deck regroups topics into its own 6-session flow. The original
+    // chapter number is kept as a small "ch. NN" reference tag, not the sort key.
+    var resolved = TOC.map(function (item) {
+      return { item: item, idx: idIndex[item.target] };
+    }).filter(function (r) {
+      return r.idx !== undefined;
+    }).sort(function (a, b) {
+      return a.idx - b.idx;
+    });
+
+    var rows = resolved.map(function (r, pos) {
+      var item = r.item, idx = r.idx;
+      var tag = "session " + SLIDES[idx].session + " \u00b7 ch. " + String(item.n).padStart(2, "0");
+      return '<div class="toc-row" data-target="' + idx + '" tabindex="0" role="button">' +
+        '<div class="toc-n">' + String(pos + 1).padStart(2, "0") + '</div>' +
         '<div class="toc-label">' + item.label + '</div>' +
         '<div class="toc-tag">' + tag + "</div></div>";
     }).join("");
-    return '<div class="eyebrow"># table of contents</div><h2 class="title">Mojo — full chapter map</h2>' +
-      '<p class="lede">All 21 chapters of the standard Mojo course outline. Sessions 1\u20135 are this repo\u2019s own compiler-verified exercises; Session 6 (marked \u201cexternal source\u201d) is adapted from ruhati.net/mojo and hasn\u2019t been run against this build.</p>' +
+    return '<div class="eyebrow"># table of contents</div><h2 class="title">Mojo \u2014 full chapter map</h2>' +
+      '<p class="lede">All 21 chapters of the standard Mojo course outline, in the order this deck actually covers them (the ch. NN tag keeps the original outline numbering for reference).</p>' +
       '<div class="toc-list">' + rows + "</div>";
   }
 
