@@ -61,8 +61,8 @@ def main():
     # Composition in action: Car reuses Engine's behavior by containing one.
     var e = Engine(300)
     var c = Car(e^, "Tesla")  # `^` transfers e into Car (Engine isn't
-    #                           implicitly copyable — see docs/language-notes.md
-    #                           if this is unfamiliar)
+    #                           implicitly copyable — see docs/mojo-training-slides.html
+    #                           Session 5 if this is unfamiliar)
     print(c.describe())  # Tesla (300 hp)
 
     # Traits in action: Car and Robot share NO struct ancestry whatsoever,

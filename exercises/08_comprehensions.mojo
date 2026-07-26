@@ -1,6 +1,7 @@
 # List, dict, and set comprehensions — all build eagerly (there are no
 # generators in this build: neither `(x for x in ...)` generator expressions
-# nor `yield` generator functions parse — see docs/mojo-tutorial.md §5).
+# nor `yield` generator functions parse — see docs/mojo-training-slides.html
+# Session 3).
 # Run: pixi run mojo run exercises/08_comprehensions.mojo
 
 

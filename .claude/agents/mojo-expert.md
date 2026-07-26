@@ -44,6 +44,7 @@ to work in this build, listed below, and you MUST verify code by running it.
 4. Match the repo's existing style: exercises are numbered `NN_name.mojo` under
    `exercises/`, standalone with `def main()`, and comment-documented.
 
-Reference notes live in `docs/` (language-notes.md, python-interop.md,
-troubleshooting.md) and `docs/mojo-tutorial.md`. Report back the final verified
-code and the exact command you used to run it.
+Reference notes live in `docs/mojo-training-slides.html` (the full training
+deck — Sessions 1-5 are compiler-verified, Session 6 is external reference)
+and `docs/troubleshooting.md`. Report back the final verified code and the
+exact command you used to run it.

@@ -1,0 +1,1529 @@
+<title>Mojo — Training Deck</title>
+<meta name="description" content="A 5-session, compiler-verified training deck for the Mojo programming language, built from this repo's exercises." />
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    .glow { animation: drift 14s ease-in-out infinite alternate; }
+    .slide { animation: rise .38s cubic-bezier(.2,.7,.2,1); }
+    @keyframes drift {
+      0%   { transform: translate(-6%, -4%) scale(1); }
+      100% { transform: translate(6%, 5%) scale(1.12); }
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  }
+
+  :root {
+    --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", "JetBrains Mono", Consolas, "Liberation Mono", monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    --bg: #14161c;
+    --bg-raised: #1b1e26;
+    --code-bg: #10121a;
+    --ink: #eae7e0;
+    --ink-dim: #9498a8;
+    --ink-faint: #656a7a;
+    --rule: #2a2e3a;
+    --ember: #ff6b35;
+    --ember-soft: rgba(255,107,53,.14);
+    --ember-deep: #c2431a;
+    --forge: #5fb8d9;
+    --good: #6fcf97;
+    --warn: #f0b429;
+    --shadow: 0 20px 50px -20px rgba(0,0,0,.55);
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #eef1f5; --bg-raised: #ffffff; --code-bg: #e7eaf0;
+      --ink: #1b1e26; --ink-dim: #565b6b; --ink-faint: #868ba0; --rule: #d7dbe3;
+      --ember: #d94f1e; --ember-soft: rgba(217,79,30,.10); --ember-deep: #a83815;
+      --forge: #1f7fa0; --good: #2f8f5b; --warn: #a9720a;
+      --shadow: 0 16px 40px -18px rgba(30,34,46,.22);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161c; --bg-raised: #1b1e26; --code-bg: #10121a;
+    --ink: #eae7e0; --ink-dim: #9498a8; --ink-faint: #656a7a; --rule: #2a2e3a;
+    --ember: #ff6b35; --ember-soft: rgba(255,107,53,.14); --ember-deep: #c2431a;
+    --forge: #5fb8d9; --good: #6fcf97; --warn: #f0b429;
+    --shadow: 0 20px 50px -20px rgba(0,0,0,.55);
+  }
+  :root[data-theme="light"] {
+    --bg: #eef1f5; --bg-raised: #ffffff; --code-bg: #e7eaf0;
+    --ink: #1b1e26; --ink-dim: #565b6b; --ink-faint: #868ba0; --rule: #d7dbe3;
+    --ember: #d94f1e; --ember-soft: rgba(217,79,30,.10); --ember-deep: #a83815;
+    --forge: #1f7fa0; --good: #2f8f5b; --warn: #a9720a;
+    --shadow: 0 16px 40px -18px rgba(30,34,46,.22);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  ::selection { background: var(--ember-soft); color: var(--ink); }
+
+  .deck { position: fixed; inset: 0; display: flex; flex-direction: column; }
+
+  .progress { height: 3px; background: var(--rule); flex: none; }
+  .progress > i { display: block; height: 100%; background: var(--ember); transition: width .3s ease; }
+
+  .stage { flex: 1; min-height: 0; position: relative; }
+  .slide {
+    position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden;
+    display: flex; flex-direction: column;
+    padding: clamp(2rem, 5vw, 4.5rem) clamp(1.75rem, 7vw, 6rem);
+  }
+
+  .navzone { position: fixed; top: 3px; bottom: 40px; width: 9%; z-index: 5; background: transparent; cursor: pointer; }
+  .navzone.left { left: 0; } .navzone.right { right: 0; }
+
+  .hud {
+    flex: none; height: 40px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 clamp(1.25rem, 4vw, 2.5rem); font-family: var(--font-mono);
+    font-size: .72rem; color: var(--ink-faint); font-variant-numeric: tabular-nums;
+    letter-spacing: .02em; z-index: 6; position: relative; background: var(--bg);
+  }
+  .hud .hint { display: none; }
+  @media (min-width: 760px) { .hud .hint { display: inline; } }
+  .hud button {
+    font-family: var(--font-mono); background: none; border: 1px solid var(--rule); color: var(--ink-dim);
+    border-radius: 5px; width: 26px; height: 26px; cursor: pointer; font-size: .8rem; line-height: 1;
+  }
+  .hud button:hover { border-color: var(--ember); color: var(--ember); }
+  .hud button:focus-visible { outline: 2px solid var(--ember); outline-offset: 1px; }
+  .hud .navbtns { display: flex; gap: .4rem; }
+  .theme-toggle { margin-left: .6rem; }
+
+  /* ---------- typography ---------- */
+  .eyebrow {
+    font-family: var(--font-mono); font-size: clamp(.72rem, 1vw, .85rem);
+    color: var(--ember); letter-spacing: .04em; margin: 0 0 .9rem; text-transform: lowercase;
+  }
+  h2.title {
+    font-family: var(--font-mono); font-weight: 700; text-wrap: balance;
+    font-size: clamp(1.5rem, 3.1vw, 2.5rem); line-height: 1.15; margin: 0 0 .7rem; letter-spacing: -.01em;
+  }
+  .lede { font-size: clamp(.98rem, 1.4vw, 1.15rem); color: var(--ink-dim); max-width: 62ch; margin: 0 0 1.2rem; line-height: 1.55; }
+  ul.bullets { margin: 0 0 1.2rem; padding: 0; list-style: none; max-width: 62ch; }
+  ul.bullets li {
+    position: relative; padding-left: 1.3rem; margin-bottom: .65rem;
+    font-size: clamp(.95rem, 1.35vw, 1.1rem); line-height: 1.5; color: var(--ink);
+  }
+  ul.bullets li::before { content: "›"; position: absolute; left: 0; color: var(--ember); font-family: var(--font-mono); }
+
+  /* ---------- layout grids ---------- */
+  .body-grid { display: grid; gap: clamp(1.5rem, 3vw, 3rem); flex: 1; min-height: 0; align-content: start; }
+  .body-grid.with-code { grid-template-columns: minmax(0, .92fr) minmax(0, 1.15fr); align-items: start; }
+  .body-grid.solo { grid-template-columns: minmax(0, 1fr); max-width: 78ch; }
+  .body-grid.compare2 { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 820px) { .body-grid.with-code, .body-grid.compare2 { grid-template-columns: 1fr; } }
+
+  .col { min-width: 0; }
+
+  /* ---------- code panel ---------- */
+  .code-pane {
+    background: var(--code-bg); border: 1px solid var(--rule); border-radius: 10px;
+    overflow: hidden; box-shadow: var(--shadow);
+  }
+  .code-pane .chrome {
+    display: flex; align-items: center; gap: .4rem; padding: .55rem .8rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .code-pane .chrome i { width: 9px; height: 9px; border-radius: 50%; background: var(--rule); display: inline-block; }
+  .code-pane pre {
+    margin: 0; padding: 1rem 1.2rem; overflow-x: auto; max-height: 42vh;
+    font-family: var(--font-mono); font-size: clamp(.72rem, 1.1vw, .9rem); line-height: 1.58;
+  }
+  .code-pane code { white-space: pre; }
+  .tok-kw  { color: var(--ember); }
+  .tok-dec { color: var(--forge); }
+  .tok-str { color: var(--good); }
+  .tok-num { color: var(--warn); }
+  .tok-typ { color: var(--ink); font-weight: 700; }
+  .tok-com { color: var(--ink-faint); font-style: italic; }
+
+  .output-pane {
+    margin-top: .7rem; border-radius: 8px; border: 1px dashed var(--rule);
+    padding: .55rem .9rem; font-family: var(--font-mono); font-size: .82rem;
+    color: var(--ink); background: var(--ember-soft); white-space: pre-wrap; line-height: 1.55;
+  }
+  .output-pane b { color: var(--ember); font-weight: 700; margin-right: .5rem; display: block; margin-bottom: .15rem; text-transform: lowercase; letter-spacing: .04em; font-size: .7rem; }
+
+  /* ---------- callouts ---------- */
+  .callout {
+    border-left: 3px solid var(--rule); padding: .7rem 1rem; border-radius: 0 8px 8px 0;
+    background: var(--bg-raised); max-width: 62ch; margin-top: auto;
+  }
+  .callout .lbl { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .05em; margin-bottom: .3rem; display: block; }
+  .callout p { margin: 0; font-size: .92rem; line-height: 1.5; color: var(--ink-dim); }
+  .callout.gotcha { border-color: var(--ember); }
+  .callout.gotcha .lbl { color: var(--ember); }
+  .callout.verified { border-color: var(--good); }
+  .callout.verified .lbl { color: var(--good); }
+  .callout.external { border-color: var(--forge); }
+  .callout.external .lbl { color: var(--forge); }
+
+  /* ---------- table ---------- */
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; }
+  table.data { border-collapse: collapse; width: 100%; font-size: .92rem; }
+  table.data th, table.data td { text-align: left; padding: .65rem .9rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  table.data th { font-family: var(--font-mono); color: var(--ink-faint); font-weight: 600; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; }
+  table.data tr:last-child td { border-bottom: none; }
+  table.data td:first-child { color: var(--ember); font-family: var(--font-mono); white-space: nowrap; }
+  table.data td { font-variant-numeric: tabular-nums; }
+
+  /* ---------- hero slides (deliberately fixed-dark, both themes) ---------- */
+  .hero { background: #10121a; color: #eae7e0; position: relative; }
+  .hero .glow {
+    position: absolute; inset: -20%; z-index: 0; pointer-events: none;
+    background: radial-gradient(38% 32% at 30% 30%, rgba(255,107,53,.30), transparent 70%),
+                radial-gradient(30% 26% at 78% 68%, rgba(95,184,217,.18), transparent 70%);
+    filter: blur(10px);
+  }
+  .hero > * { position: relative; z-index: 1; }
+
+  .cover { justify-content: center; align-items: flex-start; gap: 1rem; }
+  .cover .kicker { font-family: var(--font-mono); color: var(--ember); letter-spacing: .06em; font-size: .85rem; }
+  .cover h1 {
+    font-family: var(--font-mono); font-weight: 700; margin: 0; letter-spacing: -.02em;
+    font-size: clamp(3rem, 10vw, 6.5rem); line-height: .95; text-wrap: balance;
+  }
+  .cover .tag { color: #9498a8; max-width: 56ch; font-size: clamp(1rem, 1.7vw, 1.3rem); margin-top: .3rem; }
+  .cover .meta { display: flex; gap: 1.4rem; margin-top: 1.6rem; flex-wrap: wrap; }
+  .cover .meta span { font-family: var(--font-mono); font-size: .8rem; color: #656a7a; }
+  .cover .meta span b { color: var(--forge); font-weight: 600; }
+
+  .divider { justify-content: center; }
+  .divider .num { font-family: var(--font-mono); font-size: clamp(3.5rem, 11vw, 8rem); font-weight: 700; color: var(--ember); line-height: 1; }
+  .divider h2 { font-family: var(--font-mono); font-size: clamp(1.8rem, 4.4vw, 3.3rem); margin: .3rem 0 1rem; text-wrap: balance; }
+  .divider .lede { color: #9498a8; max-width: 58ch; }
+  .divider .chips { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1.6rem; }
+  .divider .chips span {
+    font-family: var(--font-mono); font-size: .78rem; padding: .35rem .7rem; border-radius: 999px;
+    border: 1px solid #2a2e3a; color: #9498a8;
+  }
+
+  /* ---------- agenda ---------- */
+  .toc-list { display: flex; flex-direction: column; max-width: 74ch; }
+  .toc-row {
+    display: grid; grid-template-columns: 2.3rem 1fr auto; align-items: center; gap: 1rem;
+    padding: .6rem .6rem; margin: 0 -.6rem; border-bottom: 1px solid var(--rule);
+    border-radius: 7px; cursor: pointer;
+  }
+  .toc-row[data-target] { cursor: pointer; }
+  .toc-row:not([data-target]) { cursor: default; }
+  .toc-row:first-child { margin-top: 0; }
+  .toc-row[data-target]:hover, .toc-row[data-target]:focus-visible {
+    background: var(--ember-soft); outline: none;
+  }
+  .toc-row:focus-visible { box-shadow: inset 3px 0 0 var(--ember); }
+  .toc-n { font-family: var(--font-mono); color: var(--ember); font-size: .85rem; font-variant-numeric: tabular-nums; }
+  .toc-label { font-size: .98rem; font-weight: 500; }
+  .toc-tag { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .03em; color: var(--ink-faint); text-transform: lowercase; white-space: nowrap; }
+  .toc-row--ext .toc-n { color: var(--forge); }
+  .toc-row--ext .toc-tag { color: var(--forge); }
+
+  /* ---------- closing ---------- */
+  .closing-list { display: flex; flex-direction: column; gap: 0; max-width: 70ch; }
+  .closing-row { padding: .9rem 0; border-bottom: 1px solid var(--rule); }
+  .closing-row:first-child { padding-top: 0; }
+  .closing-row .l { font-family: var(--font-mono); color: var(--ember); font-size: .98rem; }
+  .closing-row .d { color: var(--ink-dim); font-size: .9rem; margin-top: .15rem; }
+
+  @media (max-width: 640px) {
+    .hud .hint, .navzone { display: none; }
+  }
+</style>
+
+<div class="deck" id="deck">
+  <div class="progress"><i id="progressFill"></i></div>
+  <div class="stage" id="stage">
+    <div class="navzone left" id="zoneLeft" aria-hidden="true"></div>
+    <div class="navzone right" id="zoneRight" aria-hidden="true"></div>
+  </div>
+  <div class="hud">
+    <span id="counter">001 / 001</span>
+    <span class="hint">← → navigate · 1–6 jump to session · Home/End first/last</span>
+    <span style="display:flex;align-items:center;">
+      <span id="sessionLabel"></span>
+      <span class="navbtns theme-toggle">
+        <button id="themeBtn" title="Toggle theme" aria-label="Toggle light/dark theme">◐</button>
+      </span>
+    </span>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  function dedent(str) {
+    var lines = str.replace(/^\n/, "").replace(/\n[ \t]*$/, "").split("\n");
+    var indents = lines.filter(function (l) { return l.trim().length; })
+                        .map(function (l) { return l.match(/^ */)[0].length; });
+    var min = indents.length ? Math.min.apply(null, indents) : 0;
+    return lines.map(function (l) { return l.slice(min); }).join("\n");
+  }
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function hl(raw) {
+    var code = esc(dedent(raw));
+    var stash = [];
+    code = code.replace(/(#[^\n]*)|("""[\s\S]*?"""|"(?:[^"\\]|\\.)*")/g, function (m, com) {
+      var cls = com ? "tok-com" : "tok-str";
+      stash.push('<span class="' + cls + '">' + m + "</span>");
+      return "\u0000x" + (stash.length - 1) + "x\u0000";
+    });
+    code = code.replace(/@\w+/g, function (m) { return '<span class="tok-dec">' + m + "</span>"; });
+    code = code.replace(/\b\d+\.?\d*\b/g, function (m) { return '<span class="tok-num">' + m + "</span>"; });
+    code = code.replace(/\b(?!True\b|False\b|None\b)([A-Z]\w*)\b/g, function (m) { return '<span class="tok-typ">' + m + "</span>"; });
+    code = code.replace(/\b(def|struct|trait|var|from|import|return|if|elif|else|for|in|while|try|except|finally|raise|raises|True|False|None|self|mut|out|capturing|pass|with|as|and|or|not|is)\b/g,
+      function (m) { return '<span class="tok-kw">' + m + "</span>"; });
+    code = code.replace(/\u0000x(\d+)x\u0000/g, function (_, i) { return stash[i]; });
+    return code;
+  }
+
+  var SESSIONS = [
+    { n: 1, title: "Foundations & Toolchain" },
+    { n: 2, title: "Operators, Control Flow & Functions" },
+    { n: 3, title: "Data: Strings, Collections & Errors" },
+    { n: 4, title: "Structs, Traits & Closures" },
+    { n: 5, title: "Ownership, Performance & Beyond" },
+    { n: 6, title: "Advanced Topics — External Reference" }
+  ];
+
+  var SLIDES = [
+    { type: "cover", kicker: "training deck · mojo 1.0.0b2", title: "Mojo",
+      subtitle: "A hands-on tour of a compiled, Python-shaped systems language — from hello world to ownership, traits, and SIMD.",
+      meta: ["17 verified exercises", "5 sessions", "pixi + devcontainer"] },
+
+    { type: "agenda" },
+
+    // ============================== SESSION 1 ==============================
+    { type: "divider", session: 1, title: "Foundations & Toolchain",
+      blurb: "Getting oriented: what Mojo is, how to run it in this repo, and the first real gotchas.",
+      topics: ["positioning", "pixi & devcontainer", "hello world", "variables & types"] },
+
+    { type: "topic", session: 1, id: "toc-intro", kicker: "session 1 · positioning", title: "What Mojo actually is",
+      bullets: [
+        "Natively compiled — <code>mojo run</code> JITs, <code>mojo build</code> produces a real native binary. No VM, no bytecode interpreter.",
+        "Python-shaped syntax (<code>def</code>, indentation, familiar builtins) — but statically typed, with compile-time ownership tracking.",
+        "Built for hardware — first-class SIMD vector types, designed from day one for performance-critical code (Session 5).",
+        "Python is a feature, not a foundation — Mojo calls into CPython only if you opt in (Session 5)."
+      ],
+      note: { tone: "verified", label: "verified in this repo", text: "A compiled 01_hello.mojo links no libpython and runs standalone — proof the Python dependency is optional, not structural." } },
+
+    { type: "table", session: 1, kicker: "session 1 · positioning", title: "Where \u201cPython\u201d actually shows up in this stack",
+      lede: "Three different places the name \u201cPython\u201d appears when you install and use Mojo — only the last one is a real dependency, and only if your own code opts in.",
+      headers: ["Where", "Real dependency?"],
+      rows: [
+        ["Install / packaging", "No — conda, pip, and pixi are just delivery mechanisms"],
+        ["Dev tooling", "No — LSP launcher, Jupyter, the formatter: editor convenience"],
+        ["from std.python import Python in your code", "Yes, but only if you use it"]
+      ],
+      note: { tone: "verified", label: "verified", text: "Confirmed via ldd on a compiled binary: 01_hello.mojo links no libpython at all and runs standalone." } },
+
+    { type: "topic", session: 1, id: "toc-getting-started", kicker: "session 1 · toolchain", title: "Running Mojo in this repo",
+      lede: "Two ways to run a .mojo file: mojo run JIT-compiles and executes it immediately, which is what you want while iterating. mojo build instead produces a standalone native binary you can hand to someone else, or run without pixi at all.",
+      code: "pixi install                                   # sync the env from pixi.lock\n\n" +
+            "pixi run mojo run exercises/01_hello.mojo      # compile + run (JIT)\n\n" +
+            "pixi run mojo build exercises/01_hello.mojo -o hello   # compile to a binary\n" +
+            "./hello                                        # run it — no pixi needed\n\n" +
+            "pixi shell                                     # enter the env once,\n" +
+            "mojo run exercises/01_hello.mojo               # then call `mojo` directly",
+      note: { tone: "verified", label: "verified", text: "mojo is a ~141 MB native compiler binary — pixi/conda is just the delivery mechanism, not a runtime dependency." } },
+
+    { type: "topic", session: 1, kicker: "session 1 · toolchain", title: "Why pixi, not uv",
+      lede: "Mojo also ships a pip wheel (pip install mojo), which would work fine with uv. This repo deliberately stays on Mojo's own default toolchain instead — pixi/conda — so its docs, error messages, and community answers all match what's actually installed here.",
+      bullets: [
+        "Modular publishes <code>mojo</code> on its own conda channel (<code>conda.modular.com/max</code>) — pixi is a conda-ecosystem tool, the natural fit.",
+        "The pip wheel resolves its own paths at runtime from <code>__file__</code>, which happens to sidestep a stale-path bug the conda build can hit via a static <code>modular.cfg</code> — an interesting tradeoff, not a reason to switch here."
+      ] },
+
+    { type: "topic", session: 1, kicker: "session 1 · gotcha", title: "Every program needs def main() — no top-level code",
+      lede: "Unlike a Python script, which runs top-to-bottom, a .mojo file has exactly one entry point.",
+      code: "# --- wrong: code directly at file scope ---\n" +
+            "print(\"hi\")\n" +
+            "# error: expressions must not appear at file scope;\n" +
+            "#        move this into a function body\n\n" +
+            "# --- correct: code inside main() ---\n" +
+            "def main():\n" +
+            "    print(\"hi\")",
+      output: "hi",
+      note: { tone: "gotcha", label: "gotcha", text: "File scope is for declarations only — def, struct, trait, alias, imports. All runnable code goes inside a function." } },
+
+    { type: "topic", session: 1, kicker: "session 1 · gotcha", title: "def main() is non-raising by default",
+      lede: "Any function that can raise — including calls to fallible APIs like Python.import_module — must be marked raises, or the compiler refuses to call it. main() is no exception: by default it's non-raising, so it has to opt in explicitly.",
+      code: "# --- wrong: main() can't call a raising API ---\n" +
+            "def main():\n" +
+            "    var m = Python.import_module(\"math\")\n" +
+            "    # error: cannot call function that may raise\n" +
+            "    #        in a context that cannot raise\n\n" +
+            "# --- correct: mark main() itself raises ---\n" +
+            "def main() raises:\n" +
+            "    var m = Python.import_module(\"math\")",
+      note: { tone: "gotcha", label: "gotcha", text: "This is a compile-time check only — the snippet above has no print, so there's no runtime output to show." } },
+
+    { type: "topic", session: 1, kicker: "session 1 · exercise 01", title: "Hello, World",
+      lede: "The smallest complete Mojo program: one function named main, one statement inside it.",
+      code: "def main():\n    print(\"Hello, World!\")",
+      output: "Hello, World!",
+      note: { tone: "verified", label: "run it", text: "pixi run mojo run exercises/01_hello.mojo" } },
+
+    { type: "topic", session: 1, id: "toc-variables", kicker: "session 1 · exercise 02", title: "Variables: var, no let",
+      lede: "Declare a variable with var. Its type is inferred from the assigned value unless you annotate one explicitly — and, unlike languages that distinguish mutable from immutable bindings, the same var keyword is used either way.",
+      code: "var x = 41          # inferred as Int\n" +
+            "var y: Int = 1      # explicit type\n\n" +
+            "x = x + y           # var is reassignable\n" +
+            "print(\"x =\", x)",
+      output: "x = 42",
+      note: { tone: "gotcha", label: "gotcha", text: "There is no let in this build — var covers both mutable and \"meant to be constant\" values." } },
+
+    { type: "table", session: 1, id: "toc-types", kicker: "session 1 · exercise 02", title: "The full scalar type set",
+      lede: "Beyond the everyday Int, Float64, Bool, and String, this build supports a full set of fixed-width numeric types — useful when you need to control exactly how many bits a value occupies, or match a hardware/binary format.",
+      headers: ["Kind", "Types"],
+      rows: [
+        ["Signed integers", "Int (machine word), Int8, Int16, Int32, Int64, Int128, Int256"],
+        ["Unsigned integers", "UInt (machine word), UInt8, UInt16, UInt32, UInt64, UInt128, UInt256"],
+        ["Floating point", "Float16, Float32, Float64, BFloat16, Float8_e4m3fn"],
+        ["Other", "Bool, String, Byte (alias of UInt8)"]
+      ],
+      note: { tone: "verified", label: "verified", text: "Bare literals default to a specific type: var x = 42 infers Int; var f = 3.5 infers Float64." } },
+
+    { type: "topic", session: 1, kicker: "session 1 · gotcha", title: "len() on String is discouraged",
+      lede: "\"Length\" is ambiguous for text once you leave ASCII behind — is it bytes, or visible characters? Rather than guessing, Mojo asks you to say which one you mean.",
+      code: "var s: String = \"café\"\n\n" +
+            "print(s.byte_length())        # counts UTF-8 bytes\n" +
+            "print(s.count_codepoints())   # counts visible characters",
+      output: "5\n4",
+      note: { tone: "gotcha", label: "gotcha", text: "len(s) still compiles but warns. byte_length and count_codepoints agree for plain ASCII, which is why len() looks fine until non-ASCII input arrives (é is 2 bytes, 1 codepoint)." } },
+
+    { type: "topic", session: 1, kicker: "session 1 · gotcha", title: "Stdlib imports live under std.",
+      lede: "Every standard-library module in this build is namespaced under a std. prefix. Builtins — print, def, main, the basic types — need no import at all; it's specifically the stdlib modules that carry the prefix.",
+      code: "from std.math import sqrt\n" +
+            "from std.collections import List\n" +
+            "from std.python import Python\n" +
+            "from std.testing import assert_equal\n\n" +
+            "# the bare forms most online tutorials show:\n" +
+            "from math import sqrt\n" +
+            "# error: unable to locate module 'math'",
+      note: { tone: "gotcha", label: "gotcha", text: "This trips up almost every tutorial copied from the web — the fix is always the same: add std. in front of the module name." } },
+
+    { type: "topic", session: 1, kicker: "session 1 · gotcha", title: "No runtime type() — types are a compile-time thing",
+      lede: "Python's type(x) inspects a live object and returns something you can print or compare, at runtime. Mojo is statically typed, so there's no runtime registry of \u201cwhat type is this value\u201d to query — and no isinstance() either.",
+      code: "var x = 42\n" +
+            "print(type_of(x))\n" +
+            "# error: could not convert ... to 'Writable' — type_of is a\n" +
+            "#        compile-time type EXPRESSION, not a runtime value\n\n" +
+            "var y: type_of(x) = 10   # used as a type annotation instead\n" +
+            "print(y)",
+      output: "10",
+      note: { tone: "gotcha", label: "gotcha", text: "type_of names \u201cthe same type as this other variable\u201d at compile time, like C++'s decltype. For a printable runtime type name, Python interop's real type() still works on a PythonObject." } },
+
+    { type: "topic", session: 1, kicker: "session 1 · toolchain", title: "Testing, for now: plain scripts",
+      lede: "The testing module exists and works — there just isn't a dedicated test runner yet, so a \u201ctest\u201d today is simply a script you run the normal way.",
+      code: "from std.testing import assert_equal\n\n" +
+            "def main() raises:\n" +
+            "    assert_equal(1 + 1, 2)\n" +
+            "    print(\"ok\")",
+      output: "ok",
+      note: { tone: "verified", label: "verified", text: "There is no mojo test subcommand in this build (confirmed via mojo --help) — run assertions with mojo run like any other script." } },
+
+    { type: "table", session: 1, kicker: "session 1 · recap", title: "If you've read a Mojo tutorial elsewhere already",
+      lede: "A quick-reference recap of everything Session 1 just covered, framed as direct substitutions — keep this in your back pocket whenever an online example won't compile here.",
+      headers: ["Tutorials elsewhere show", "This build (1.0.0b2) requires"],
+      rows: [
+        ["fn name(...)", "def name(...) — fn removed entirely, even for methods"],
+        ["let x = ...", "var x = ... — let removed"],
+        ["@value on structs", "@fieldwise_init"],
+        ["from math import sqrt", "from std.math import sqrt — whole stdlib under std."],
+        ["inout self / inout x", "mut self / mut x"],
+        ["borrowed x (immutable arg)", "read x — and it's the default, usually omitted"],
+        ["owned x (take ownership)", "var x"]
+      ],
+      note: { tone: "verified", label: "verified", text: "When in doubt, verify against the installed compiler, not a website — every code sample in this deck was." } },
+
+    // ============================== SESSION 2 ==============================
+    { type: "divider", session: 2, title: "Operators, Control Flow & Functions",
+      blurb: "The operator categories, the silent-truncation trap, and how functions declare failure.",
+      topics: ["arithmetic & comparison", "boolean & bitwise logic", "control flow", "functions & raises"] },
+
+    { type: "topic", session: 2, kicker: "session 2 · arithmetic", title: "Arithmetic operators",
+      lede: "The standard set of arithmetic operators — each does exactly what its symbol suggests, with one notable exception covered on the next slide.",
+      code: "print(7 + 3)     # addition\n" +
+            "print(7 - 3)     # subtraction\n" +
+            "print(7 * 3)     # multiplication\n" +
+            "print(7 // 3)    # floor division\n" +
+            "print(7 % 3)     # modulo\n" +
+            "print(2 ** 3)    # exponentiation",
+      output: "10\n4\n21\n2\n1\n8" },
+
+    { type: "topic", session: 2, kicker: "session 2 · gotcha", title: "Int / Int truncates — / is not always true division",
+      lede: "The exception: dividing two Int values with / does not behave like Python's /. It performs integer division and discards the remainder, silently — there's no warning or error to catch you.",
+      code: "print(7 / 3)\n\n" +
+            "print(Float64(7) / Float64(3))   # convert first for true division",
+      output: "2\n2.3333333333333335",
+      note: { tone: "gotcha", label: "gotcha", text: "Python's / always returns a float. Here it truncates between two Ints — a silent bug trap, not a compile error." } },
+
+    { type: "topic", session: 2, kicker: "session 2 · arithmetic", title: "Floor division and modulo round toward −∞",
+      lede: "// and % are a matched pair: a // b gives the quotient rounded down, and a % b gives whatever remains so that (a // b) * b + (a % b) always equals a. \"Rounded down\" means toward negative infinity, so both operators can surprise you with negative operands.",
+      code: "print(-7 // 3)    # floor division\n" +
+            "print(-7 % 3)     # modulo — follows floor division's sign",
+      output: "-3\n2",
+      note: { tone: "verified", label: "verified", text: "Matches Python's behavior, not C's truncate-toward-zero." } },
+
+    { type: "topic", session: 2, kicker: "session 2 · comparison", title: "Comparison operators",
+      lede: "The six standard comparison operators — each one compares two values and returns a Bool.",
+      code: "print(5 == 5)    # equal\n" +
+            "print(5 != 3)    # not equal\n" +
+            "print(5 < 3)     # less than\n" +
+            "print(5 > 3)     # greater than\n" +
+            "print(5 <= 5)    # less or equal\n" +
+            "print(5 >= 6)    # greater or equal",
+      output: "True\nTrue\nFalse\nTrue\nTrue\nFalse" },
+
+    { type: "topic", session: 2, kicker: "session 2 · comparison", title: "Membership: in / not in",
+      lede: "in and not in test whether something is \"contained\" in a collection — and what \"contained\" means adapts to the collection: a substring check for String, an element check for List, a key check for Dict.",
+      code: "var text: String = \"hello world\"\n" +
+            "print(\"world\" in text)        # substring check\n" +
+            "print(\"xyz\" not in text)      # substring absence\n\n" +
+            "var xs = [1, 2, 3]\n" +
+            "print(2 in xs)                 # element check\n\n" +
+            "var lookup = Dict[String, Int]()\n" +
+            "lookup[\"a\"] = 1\n" +
+            "print(\"a\" in lookup)           # checks Dict KEYS\n" +
+            "print(\"z\" in lookup)",
+      output: "True\nTrue\nTrue\nTrue\nFalse",
+      note: { tone: "verified", label: "verified", text: "in / not in work the same way across String (substring), List/Set (element), and Dict (keys, like Python — not values)." } },
+
+    { type: "topic", session: 2, kicker: "session 2 · gotcha", title: "is / is not only work where a type implements __is__",
+      lede: "Python's is checks whether two names refer to the literal same object, for any object at all. Mojo restricts is to types that explicitly implement it — trying it on an ordinary value type is a compile-time error, not a runtime False.",
+      code: "var x = 5\n" +
+            "print(x is x)\n" +
+            "# error: 'Int' does not implement the '__is__' method\n\n" +
+            "var maybe: Optional[Int] = None\n" +
+            "print(maybe is None)   # the idiomatic use that works",
+      output: "True",
+      note: { tone: "gotcha", label: "gotcha", text: "Python's is works on any object. Here it's a compile error unless the type opts in — narrower, not looser." } },
+
+    { type: "topic", session: 2, kicker: "session 2 · boolean logic", title: "and / or return the value, and short-circuit",
+      lede: "and and or don't collapse their result down to True/False — each returns whichever of its two operands actually determined the outcome. Both also short-circuit: the right-hand side is only evaluated if the left side didn't already settle the answer.",
+      code: "def noisy(label: String, val: Bool) -> Bool:\n" +
+            "    print(\"  evaluated:\", label)\n" +
+            "    return val\n\n" +
+            "var zero = 0\n" +
+            "var five = 5\n" +
+            "print(zero or five)          # the actual value, not a coerced Bool\n\n" +
+            "print(\"short-circuit and:\")\n" +
+            "_ = noisy(\"left\", False) and noisy(\"right\", True)\n" +
+            "# `and` skips the right side once the left is already False",
+      output: "5\nshort-circuit and:\n  evaluated: left",
+      note: { tone: "verified", label: "verified", text: "and/or/not, short-circuit evaluation, and in/not in all behave exactly like Python here." } },
+
+    { type: "topic", session: 2, kicker: "session 2 · bitwise", title: "Bitwise operators",
+      lede: "Operate on the individual bits of an integer's binary representation — the same six operators you'd find in C, Python, or Rust.",
+      code: "print(6 & 3)      # AND\n" +
+            "print(6 | 3)      # OR\n" +
+            "print(6 ^ 3)      # XOR\n" +
+            "print(~6)         # invert\n" +
+            "print(1 << 3)     # left shift\n" +
+            "print(16 >> 2)    # right shift",
+      output: "2\n7\n5\n-7\n8\n4" },
+
+    { type: "topic", session: 2, kicker: "session 2 · assignment", title: "Augmented assignment",
+      lede: "Shorthand for \"take the current value, apply an operation, store the result back.\" Each line below means the same thing as the longer n = n + 5 form — just less to type, and less room to typo the variable name.",
+      code: "var n = 10\n" +
+            "n += 5     # n is now 15\n" +
+            "n -= 2     # n is now 13\n" +
+            "n *= 2     # n is now 26\n" +
+            "n //= 3    # n is now 8\n" +
+            "print(n)",
+      output: "8" },
+
+    { type: "topic", session: 2, id: "toc-control-flow", kicker: "session 2 · control flow", title: "if / elif / else",
+      lede: "Standard branching, checked top to bottom: the first condition that evaluates True runs its block, and every other branch is skipped — including any elif that would also have matched.",
+      code: "def grade(n: Int) -> String:\n" +
+            "    if n >= 90:\n" +
+            "        return \"A\"\n" +
+            "    elif n >= 80:\n" +
+            "        return \"B\"\n" +
+            "    else:\n" +
+            "        return \"C\"\n\n" +
+            "print(grade(95))\n" +
+            "print(grade(85))\n" +
+            "print(grade(50))",
+      output: "A\nB\nC" },
+
+    { type: "topic", session: 2, kicker: "session 2 · control flow", title: "The ternary expression",
+      lede: "A compact, single-expression form of if/else: it evaluates to one of two values based on a condition, so you can use it anywhere a value is expected — like directly inside a print() call — rather than only as a standalone statement.",
+      code: "var x = 5\n" +
+            "print(\"big\" if x > 3 else \"small\")",
+      output: "big" },
+
+    { type: "topic", session: 2, kicker: "session 2 · control flow", title: "while and for / range",
+      lede: "while repeats for as long as its condition stays True, checked before every iteration. for with range(n) repeats exactly n times, walking through 0 up to — but not including — n.",
+      code: "var i = 0\n" +
+            "while i < 3:\n" +
+            "    i += 1\n" +
+            "print(\"i =\", i)\n\n" +
+            "var total = 0\n" +
+            "for k in range(5):        # 0, 1, 2, 3, 4\n" +
+            "    total += k\n" +
+            "print(\"total =\", total)",
+      output: "i = 3\ntotal = 10" },
+
+    { type: "topic", session: 2, id: "toc-functions", kicker: "session 2 · functions", title: "Functions: def, defaults, keyword args",
+      lede: "Functions are declared with def and an optional return type. A parameter can carry a default value, in which case a caller may omit it — and any parameter can be supplied by name instead of by position.",
+      code: "def add(a: Int, b: Int) -> Int:\n" +
+            "    return a + b\n\n" +
+            "def power(base: Int, exp: Int = 2) -> Int:\n" +
+            "    var r = 1\n" +
+            "    for _ in range(exp):\n" +
+            "        r *= base\n" +
+            "    return r\n\n" +
+            "print(add(2, 3))\n" +
+            "print(power(3))           # exp defaults to 2\n" +
+            "print(power(2, exp=5))    # keyword argument",
+      output: "5\n9\n32" },
+
+    { type: "topic", session: 2, kicker: "session 2 · functions", title: "Functions that can fail: raises",
+      lede: "A function that might fail has to say so in its signature with raises. That's not just documentation — the compiler enforces it, refusing to compile a call site that doesn't either handle the error or itself propagate raises upward (Session 3 covers the handling side in full).",
+      code: "def risky(x: Int) raises -> Int:\n" +
+            "    if x < 0:\n" +
+            "        raise Error(\"negative\")\n" +
+            "    return x\n\n" +
+            "def main() raises:\n" +
+            "    print(risky(10))",
+      output: "10",
+      note: { tone: "verified", label: "verified", text: "raises must appear on both the function and any caller that doesn't itself handle the error." } },
+
+    // ============================== SESSION 3 ==============================
+    { type: "divider", session: 3, title: "Data: Strings, Collections & Errors",
+      blurb: "Where Python instincts most often misfire — text handling, the collection zoo, and structured error flow.",
+      topics: ["string pitfalls", "every collection type", "comprehensions", "error handling toolkit"] },
+
+    { type: "topic", session: 3, kicker: "session 3 · strings", title: "Case and whitespace",
+      lede: "String methods for normalizing text. None of these mutate s in place — String is immutable, so each method returns a new String and leaves the original untouched.",
+      code: "var s: String = \"  Hello Mojo  \"\n\n" +
+            "print(s.upper())\n" +
+            "print(s.lower())\n" +
+            "print(\"[\" + s.strip() + \"]\")",
+      output: "  HELLO MOJO  \n  hello mojo  \n[Hello Mojo]" },
+
+    { type: "topic", session: 3, kicker: "session 3 · strings", title: "Searching",
+      lede: "Locate and test for substrings without reaching for regular expressions. find() returns a byte offset (or -1 when nothing matches); startswith()/endswith() just answer yes-or-no.",
+      code: "var t: String = \"hello world\"\n\n" +
+            "print(t.find(\"world\"))        # byte offset, -1 if not found\n" +
+            "print(t.startswith(\"hello\"))\n" +
+            "print(t.endswith(\"world\"))",
+      output: "6\nTrue\nTrue" },
+
+    { type: "topic", session: 3, kicker: "session 3 · strings", title: "split / join",
+      lede: "split() breaks a String into a List of pieces on a separator. join() does the reverse — it stitches a list of strings back together, inserting the separator between each pair.",
+      code: "var csv: String = \"a,b,c\"\n" +
+            "var parts = csv.split(\",\")\n" +
+            "print(parts)\n\n" +
+            "print(String(\"-\").join(parts))",
+      output: "[a, b, c]\na-b-c",
+      note: { tone: "gotcha", label: "gotcha", text: "join's argument must be a list literal or List[String]() — the variadic List[String](\"a\",\"b\") form does NOT work." } },
+
+    { type: "topic", session: 3, kicker: "session 3 · gotcha", title: "Slicing needs byte= / codepoint=",
+      lede: "Mojo strings are stored as UTF-8. A plain numeric range like s[a:b] is genuinely ambiguous for non-ASCII text, because a byte position and a visible-character position aren't the same number — so Mojo forces you to say explicitly which one you mean.",
+      code: "var t: String = \"hello world\"\n\n" +
+            "print(t[byte=0:5])          # raw UTF-8 byte positions\n" +
+            "print(t[codepoint=6:11])    # Unicode codepoint positions\n\n" +
+            "# t[0:5] directly:\n" +
+            "# error: Mojo strings are UTF-8 encoded — ambiguous;\n" +
+            "#        use byte= or codepoint= explicitly",
+      output: "hello\nworld",
+      note: { tone: "gotcha", label: "verified bug", text: "codepoint= slicing across a multi-byte character (é, emoji, …) corrupts the result in this build. byte= is reliable for any content — prefer it when correctness matters." } },
+
+    { type: "topic", session: 3, kicker: "session 3 · gotcha", title: "No f-strings — t\"...\" instead, and it isn't a String",
+      lede: "String interpolation exists, just spelled differently than Python's f-string — a t prefix instead of f, and it produces its own distinct type rather than a String directly.",
+      code: "var name: String = \"World\"\n" +
+            "print(t\"Hello, {name}!\")\n\n" +
+            "var n = 42\n" +
+            "var s: String = t\"n={n}\"\n" +
+            "# error: cannot implicitly convert 'TString[...]' to 'String'\n\n" +
+            "var s2: String = String(t\"n={n}\")   # wrap explicitly — this works\n" +
+            "print(s2)",
+      output: "Hello, World!\nn=42",
+      note: { tone: "gotcha", label: "gotcha", text: "No Python-style format specs either — t\"{x:.2f}\" is rejected; format the value before interpolating." } },
+
+    { type: "topic", session: 3, kicker: "session 3 · collections", title: "List — building with append()",
+      lede: "List[Int]() starts out empty. Grow it one element at a time with .append(), then read it back by index or by measuring its length — much like a Python list, but with a fixed element type.",
+      code: "var xs = List[Int]()\n" +
+            "xs.append(1)\n" +
+            "xs.append(2)\n" +
+            "xs.append(3)\n\n" +
+            "print(len(xs))\n" +
+            "print(xs[0])",
+      output: "3\n1" },
+
+    { type: "topic", session: 3, kicker: "session 3 · collections", title: "List literals and iteration",
+      lede: "A list literal — square brackets around comma-separated values — is shorthand for building the same List without calling append() yourself. The element type is inferred from the values you give it.",
+      code: "var ys = [10, 20, 30]      # list literal — element type inferred\n\n" +
+            "var total = 0\n" +
+            "for y in ys:\n" +
+            "    total += y\n" +
+            "print(total)",
+      output: "60" },
+
+    { type: "topic", session: 3, kicker: "session 3 · collections", title: "Dict",
+      lede: "A hash map from keys to values, indexed with square brackets — assignment inserts or overwrites a key, and reading a missing key raises (Dict access happens in a raises context for that reason).",
+      code: "var d = Dict[String, Int]()\n" +
+            "d[\"a\"] = 1\n" +
+            "d[\"b\"] = 2\n\n" +
+            "print(d[\"a\"])\n" +
+            "print(len(d))",
+      output: "1\n2" },
+
+    { type: "topic", session: 3, kicker: "session 3 · collections", title: "Optional — a value that may be absent",
+      lede: "A container that either holds exactly one value or holds nothing at all — the idiomatic way to represent \"there might not be an answer\" without reaching for null or an exception. Checking it directly in an if tells you whether a value is present.",
+      code: "var o = Optional[Int](5)\n" +
+            "if o:                # truthy when present\n" +
+            "    print(o.value())",
+      output: "5" },
+
+    { type: "topic", session: 3, kicker: "session 3 · collections", title: "Tuples and unpacking",
+      lede: "A Tuple groups a fixed number of values of possibly-different types into one return value. Unpacking spreads that group straight into separate named variables in a single statement.",
+      code: "def minmax(a: Int, b: Int) -> Tuple[Int, Int]:\n" +
+            "    return (a, b) if a < b else (b, a)\n\n" +
+            "var lo, hi = minmax(9, 4)   # one `var` covers the whole pattern\n\n" +
+            "print(lo)\n" +
+            "print(hi)",
+      output: "4\n9" },
+
+    { type: "topic", session: 3, kicker: "session 3 · collections", title: "Set — union and intersection",
+      lede: "An unordered collection that automatically discards duplicates, with the classic set-algebra operators for combining two sets: | for everything in either, & for only what's in both.",
+      code: "var a = Set[Int](1, 2, 3)\n" +
+            "var b: Set[Int] = {2, 3, 4}   # {...} literal syntax also works\n\n" +
+            "a.add(1)                       # duplicate — no effect, stays unique\n" +
+            "print(len(a))\n\n" +
+            "print(a | b)      # union\n" +
+            "print(a & b)      # intersection",
+      output: "3\n{1, 2, 3, 4}\n{2, 3}" },
+
+    { type: "topic", session: 3, kicker: "session 3 · collections", title: "Deque — double-ended queue",
+      lede: "Like a List, but optimized to add and remove elements from either end in constant time — useful whenever you need a queue, a stack, or a sliding window, and a plain List's front-removal cost would add up.",
+      code: "var dq = Deque[Int]()\n" +
+            "dq.append(1)\n" +
+            "dq.append(2)\n" +
+            "dq.appendleft(0)\n\n" +
+            "print(dq)\n" +
+            "print(dq.popleft())\n" +
+            "print(dq.pop())",
+      output: "[0, 1, 2]\n0\n2" },
+
+    { type: "topic", session: 3, kicker: "session 3 · collections", title: "Counter",
+      lede: "A Dict specialized for tallying occurrences — reading a key that's never been set returns 0 instead of raising, so you can increment counts without checking for existence first.",
+      code: "var counts = Counter[String]()\n" +
+            "counts[\"a\"] += 1\n" +
+            "counts[\"a\"] += 1\n" +
+            "counts[\"b\"] += 1\n\n" +
+            "print(counts[\"a\"])\n" +
+            "print(counts[\"b\"])",
+      output: "2\n1",
+      note: { tone: "verified", label: "verified", text: "Missing keys default to 0 — no KeyError like a plain Dict would raise." } },
+
+    { type: "topic", session: 3, kicker: "session 3 · collections", title: "InlineArray — fixed-size, stack-allocated",
+      lede: "An array whose size is part of its type and fixed at compile time, stored inline rather than on the heap — faster to allocate than a List, at the cost of never being able to grow.",
+      code: "var arr = InlineArray[Int, 3](fill=0)   # needs fill= — no variadic\n" +
+            "                                          # constructor like List's\n" +
+            "arr[0] = 1\n" +
+            "arr[1] = 2\n" +
+            "arr[2] = 3\n\n" +
+            "print(arr[0])\n" +
+            "print(len(arr))",
+      output: "1\n3",
+      note: { tone: "verified", label: "verified", text: "Also LinkedList and BitSet live in std.collections, same import — the full toolbox, not just List/Dict/Set." } },
+
+    { type: "topic", session: 3, kicker: "session 3 · collections", title: "Variant — Mojo's Union equivalent",
+      lede: "There is no Union type by that name here. Variant is Mojo's tagged union: a single value that, at any moment, is exactly one of a fixed set of possible types — checked with .isa[T]() and unwrapped with v[T].",
+      code: "var v: Variant[Int, String] = 42\n" +
+            "if v.isa[Int]():\n" +
+            "    print(v[Int])\n\n" +
+            "v = String(\"now a string\")\n" +
+            "if v.isa[String]():\n" +
+            "    print(v[String])",
+      output: "42\nnow a string",
+      note: { tone: "verified", label: "verified", text: "A tagged union — check the active type with .isa[T](), extract it with v[T]. There is no Union type by that name." } },
+
+    { type: "topic", session: 3, kicker: "session 3 · gotcha", title: "List comprehensions — no generators in this build",
+      lede: "Build a new List from an existing iterable in a single expression, with an optional if clause to filter which elements make it in — the same comprehension syntax Python uses.",
+      code: "var squares = [n * n for n in range(5)]\n" +
+            "print(squares)\n\n" +
+            "var evens = [n for n in range(10) if n % 2 == 0]\n" +
+            "print(evens)",
+      output: "[0, 1, 4, 9, 16]\n[0, 2, 4, 6, 8]",
+      note: { tone: "gotcha", label: "gotcha", text: "Neither (x for x in ...) generator expressions nor yield generator functions parse. Comprehensions always build the whole collection eagerly." } },
+
+    { type: "topic", session: 3, kicker: "session 3 · collections", title: "Dict and set comprehensions",
+      lede: "The same comprehension syntax extends to Dict and Set literals — curly braces with a key: value pair build a Dict, curly braces with just a value build a Set.",
+      code: "var lookup = {n: n * n for n in range(4)}\n" +
+            "print(lookup)\n\n" +
+            "var uniq = {n % 3 for n in range(6)}\n" +
+            "print(uniq)",
+      output: "{0: 0, 1: 1, 2: 4, 3: 9}\n{0, 1, 2}" },
+
+    { type: "topic", session: 3, id: "toc-error-handling", kicker: "session 3 · errors", title: "raise / try / except",
+      lede: "raise signals that something has gone wrong and unwinds execution immediately. try/except catches that: code that might raise goes in the try block, and except runs only if it actually did.",
+      code: "def checked_div(a: Int, b: Int) raises -> Int:\n" +
+            "    if b == 0:\n" +
+            "        raise Error(\"division by zero\")\n" +
+            "    return a // b\n\n" +
+            "try:\n" +
+            "    print(checked_div(10, 2))   # this line prints, then...\n" +
+            "    print(checked_div(1, 0))    # ...this one raises instead\n" +
+            "except e:\n" +
+            "    print(\"caught:\", e)",
+      output: "5\ncaught: division by zero" },
+
+    { type: "topic", session: 3, kicker: "session 3 · errors", title: "else and finally",
+      lede: "Two optional clauses round out try/except. else runs only when the try block completed without raising — useful for code that should happen \"on success\" but that you don't want except to accidentally catch errors from. finally always runs, whether or not an exception occurred — the natural place for cleanup.",
+      code: "try:\n" +
+            "    print(checked_div(10, 5))\n" +
+            "except e:\n" +
+            "    print(\"caught:\", e)\n" +
+            "else:\n" +
+            "    print(\"no exception occurred\")   # runs only when try succeeded\n\n" +
+            "try:\n" +
+            "    raise Error(\"boom\")\n" +
+            "except e:\n" +
+            "    print(\"caught:\", e)\n" +
+            "finally:\n" +
+            "    print(\"cleanup always runs\")      # runs no matter what",
+      output: "2\nno exception occurred\ncaught: boom\ncleanup always runs" },
+
+    { type: "topic", session: 3, kicker: "session 3 · errors", title: "Bare except and re-raise",
+      lede: "A bare except: (no e) catches any error without giving you access to it — useful when you just need to react, not inspect. A bare raise with no argument, used inside an except block, re-throws whatever was just caught, unchanged — the standard pattern for \"log it here, then let an outer caller handle it too.\"",
+      code: "def inner() raises:\n" +
+            "    raise Error(\"inner failure\")\n\n" +
+            "def outer() raises:\n" +
+            "    try:\n" +
+            "        inner()\n" +
+            "    except:                   # bare except: — catch-all, no variable\n" +
+            "        print(\"logging then re-raising\")\n" +
+            "        raise                 # re-raises the currently-caught error\n\n" +
+            "try:\n" +
+            "    outer()\n" +
+            "except e:\n" +
+            "    print(\"caught:\", e)",
+      output: "logging then re-raising\ncaught: inner failure",
+      note: { tone: "verified", label: "verified", text: "except e: binds an Error — String(e) extracts its message. Error(...) joins multiple args like print()." } },
+
+    // ============================== SESSION 4 ==============================
+    { type: "divider", session: 4, title: "Structs, Traits & Closures",
+      blurb: "Mojo's only user-defined type, why there's no inheritance, and how closures actually capture.",
+      topics: ["struct fundamentals", "no inheritance", "traits & generics", "closures"] },
+
+    { type: "compare", session: 4, kicker: "session 4 · concept", title: "Mojo's struct isn't a C struct",
+      left: { label: "C struct", bullets: ["Pure data — fields only", "No methods, no constructors", "No trait/interface conformance"] },
+      right: { label: "Mojo struct", bullets: ["Fields + methods + constructors", "Trait conformance & operator overloading", "Value semantics: copy/move, not reference + GC"] },
+      note: { tone: "verified", label: "verified", text: "Closer to a C++/Rust struct or a class — minus inheritance. See the next few slides for what replaces it." } },
+
+    { type: "topic", session: 4, id: "toc-struct", kicker: "session 4 · exercise 10", title: "A plain data struct",
+      lede: "A struct groups related fields under one type. Hand-writing a constructor for the common case — one parameter per field — is boilerplate, so @fieldwise_init generates that __init__ automatically from the var declarations, in the order they're declared.",
+      code: "@fieldwise_init\nstruct Point:\n" +
+            "    var x: Int\n" +
+            "    var y: Int\n\n" +
+            "var p = Point(1, 2)   # constructor generated from the fields\n\n" +
+            "print(p.x)\n" +
+            "print(p.y)",
+      output: "1\n2" },
+
+    { type: "topic", session: 4, kicker: "session 4 · exercise 10", title: "Read-only vs mutating methods",
+      lede: "A method's first parameter controls whether it can change the struct. self grants read-only access; mut self is required the moment the method assigns to one of the struct's fields — the compiler enforces the distinction, it isn't just a naming convention.",
+      code: "@fieldwise_init\nstruct Counter:\n" +
+            "    var n: Int\n\n" +
+            "    def get(self) -> Int:      # read-only — takes self\n" +
+            "        return self.n\n\n" +
+            "    def inc(mut self):         # mutating — takes mut self\n" +
+            "        self.n += 1\n\n" +
+            "var c = Counter(0)\n" +
+            "c.inc()\n" +
+            "c.inc()\n" +
+            "print(c.get())",
+      output: "2" },
+
+    { type: "topic", session: 4, kicker: "session 4 · gotcha", title: "@fieldwise_init vs Copyable/Movable/Writable",
+      lede: "Two different kinds of thing that show up together on almost every struct in this repo, and are easy to conflate at a glance.",
+      bullets: [
+        "<code>@fieldwise_init</code> is a decorator, not a keyword — it codegens <code>__init__</code> from the var fields, one param each, in declaration order.",
+        "<code>Copyable</code>, <code>Movable</code>, <code>Writable</code> are ordinary trait names, not keywords — the same kind of symbol as a trait you'd define yourself."
+      ],
+      code: "# proof they're not reserved words:\n" +
+            "var Copyable = 5\n" +
+            "var Movable = \"not a keyword\"\n" +
+            "print(Copyable, Movable)     # compiles fine\n\n" +
+            "# proof `struct` really IS a keyword:\n" +
+            "var struct = 5\n" +
+            "# error: unexpected token in expression",
+      output: "5 not a keyword",
+      note: { tone: "gotcha", label: "gotcha", text: "Copyable → plain copy assignment. Movable → ^ transfer. Writable → print()/String() via write_to." } },
+
+    { type: "topic", session: 4, kicker: "session 4 · exercise 11", title: "Constructor overloading",
+      lede: "__init__ is just a method, and like any other method it can be defined more than once with different parameter lists. Mojo picks the matching overload the same way it resolves any overloaded call — by the number and types of arguments at the call site.",
+      code: "struct Point:\n" +
+            "    var x: Int\n" +
+            "    var y: Int\n\n" +
+            "    def __init__(out self, x: Int, y: Int):    # overload 1\n" +
+            "        self.x = x\n" +
+            "        self.y = y\n\n" +
+            "    def __init__(out self, both: Int):         # overload 2\n" +
+            "        self.x = both\n" +
+            "        self.y = both\n\n" +
+            "var p1 = Point(3, 4)\n" +
+            "var p2 = Point(5)          # resolves to the single-arg overload\n\n" +
+            "print(p1.x, p1.y)\n" +
+            "print(p2.x, p2.y)",
+      output: "3 4\n5 5" },
+
+    { type: "topic", session: 4, kicker: "session 4 · exercise 11", title: "Static factory methods",
+      lede: "@staticmethod defines a method that's called on the type itself rather than on an instance — Mojo's stand-in for a Python @classmethod, most often used as a named alternate constructor when a plain Point(...) call wouldn't be self-explanatory.",
+      code: "struct Point:\n" +
+            "    var x: Int\n" +
+            "    var y: Int\n\n" +
+            "    def __init__(out self, x: Int, y: Int):\n" +
+            "        self.x = x\n" +
+            "        self.y = y\n\n" +
+            "    @staticmethod\n" +
+            "    def origin() -> Point:\n" +
+            "        return Point(0, 0)\n\n" +
+            "var p3 = Point.origin()   # called on the type, not an instance\n\n" +
+            "print(p3.x)\n" +
+            "print(p3.y)",
+      output: "0\n0" },
+
+    { type: "topic", session: 4, kicker: "session 4 · exercise 11", title: "Default argument values",
+      lede: "Constructor parameters accept default values exactly like any other function's — omit an argument at the call site and Mojo fills in the default, while keyword arguments let you override just one parameter without repeating the others.",
+      code: "struct Vector:\n" +
+            "    var x: Int\n" +
+            "    var y: Int\n\n" +
+            "    def __init__(out self, x: Int = 0, y: Int = 0):\n" +
+            "        self.x = x\n" +
+            "        self.y = y\n\n" +
+            "var v1 = Vector()          # both defaults used\n" +
+            "var v2 = Vector(y=7)       # keyword arg overrides just y\n\n" +
+            "print(v1.x, v1.y)\n" +
+            "print(v2.x, v2.y)",
+      output: "0 0\n0 7" },
+
+    { type: "topic", session: 4, kicker: "session 4 · gotcha", title: "No classes, no struct inheritance",
+      lede: "Mojo has no class keyword at all, and a struct cannot extend another struct. Both of the snippets below are hard compiler errors — this is a deliberate design boundary, not a feature that's merely unimplemented yet.",
+      code: "class Animal: ...\n" +
+            "# error: classes are not supported yet\n\n" +
+            "struct Dog(Animal):        # Animal is a struct, not a trait\n" +
+            "# error: structs only conform to traits or trait compositions;\n" +
+            "#        remove the struct type from the conformance list",
+      note: { tone: "gotcha", label: "gotcha", text: "Mojo's answers to \"reuse behavior across types\" are composition (has-a) and traits (can-do) — next two slides." } },
+
+    { type: "topic", session: 4, kicker: "session 4 · exercise 12", title: "Composition — \"has-a\" instead of \"is-a\"",
+      lede: "Instead of Car inheriting from Engine, Car simply holds one as a field and delegates to its methods explicitly inside describe(). This is Mojo's substitute for the code-reuse half of what inheritance usually provides.",
+      code: "@fieldwise_init\nstruct Engine(Copyable, Movable):\n" +
+            "    var horsepower: Int\n\n" +
+            "    def describe(self) -> String:\n" +
+            "        return String(self.horsepower) + \" hp\"\n\n" +
+            "@fieldwise_init\nstruct Car(Copyable, Describable, Movable):\n" +
+            "    var engine: Engine        # Car HAS an Engine — composition\n" +
+            "    var name: String\n\n" +
+            "    def describe(self) -> String:\n" +
+            "        return self.name + \" (\" + self.engine.describe() + \")\"\n\n" +
+            "var e = Engine(300)\n" +
+            "var c = Car(e^, \"Tesla\")      # ^ transfers e into Car — Session 5\n" +
+            "print(c.describe())",
+      output: "Tesla (300 hp)" },
+
+    { type: "topic", session: 4, id: "toc-trait", kicker: "session 4 · exercise 12", title: "Traits — \"can-do\" instead of \"is-a\"",
+      lede: "A trait is a contract: a list of method signatures a type promises to implement. Any struct that implements every method in the trait satisfies it — there's no shared base type, and the structs involved don't need any relationship to each other at all.",
+      code: "trait Describable:\n    def describe(self) -> String: ...\n\n" +
+            "@fieldwise_init\nstruct Robot(Describable):\n" +
+            "    var id: Int\n\n" +
+            "    def describe(self) -> String:\n" +
+            "        return \"unit-\" + String(self.id)\n\n" +
+            "def print_description[T: Describable](item: T):\n" +
+            "    print(item.describe())\n\n" +
+            "print_description(c)            # c is the Car from the previous slide\n" +
+            "print_description(Robot(7))     # zero shared struct ancestry with Car",
+      output: "Tesla (300 hp)\nunit-7",
+      note: { tone: "verified", label: "verified", text: "Car and Robot share no struct ancestry whatsoever — both just implement Describable." } },
+
+    { type: "topic", session: 4, kicker: "session 4 · exercise 13", title: "Trait composition",
+      lede: "A trait can itself require conformance to other traits, bundling several contracts under one name. A struct that claims to implement the combined trait has to satisfy every method from all of its parts — here, both Drawable and Measurable.",
+      code: "trait Drawable:\n    def draw(self) -> String: ...\n\n" +
+            "trait Measurable:\n    def area(self) -> Float64: ...\n\n" +
+            "trait Shape(Drawable, Measurable):    # requires conformance to BOTH\n" +
+            "    pass\n\n" +
+            "@fieldwise_init\nstruct Square(Shape):\n" +
+            "    var side: Float64\n\n" +
+            "    def draw(self) -> String:\n" +
+            "        return \"[square]\"\n\n" +
+            "    def area(self) -> Float64:\n" +
+            "        return self.side * self.side\n\n" +
+            "def describe[T: Shape](s: T) -> String:\n" +
+            "    return s.draw() + \" area=\" + String(s.area())\n\n" +
+            "print(describe(Square(4.0)))",
+      output: "[square] area=16.0" },
+
+    { type: "topic", session: 4, id: "toc-operators", kicker: "session 4 · mechanism", title: "+ is sugar for __add__",
+      lede: "Nothing about + is built into the compiler for a particular type. Seeing a + between two values, the compiler rewrites the expression into a method call — a.__add__(b) — looked up on the left operand's own type. Vec2 works with + only because it supplies that method.",
+      code: "struct Vec2:\n" +
+            "    var x: Int\n" +
+            "    var y: Int\n\n" +
+            "    def __add__(self, other: Vec2) -> Vec2:\n" +
+            "        return Vec2(self.x + other.x, self.y + other.y)\n\n" +
+            "    def write_to[W: Writer](self, mut writer: W):\n" +
+            "        writer.write(\"(\", self.x, \", \", self.y, \")\")\n\n" +
+            "var a = Vec2(1, 2)\n" +
+            "var b = Vec2(3, 4)\n" +
+            "print(a + b)             # a + b is sugar for a.__add__(b)\n\n" +
+            "# delete __add__ from Vec2, and the same call becomes:\n" +
+            "# error: 'Pair' does not implement the '__add__' method",
+      output: "(4, 6)",
+      note: { tone: "verified", label: "verified", text: "Same pattern for every operator: == → __eq__, < → __lt__, unary - → __neg__, += → __iadd__." } },
+
+    { type: "topic", session: 4, kicker: "session 4 · mechanism", title: "print() is generic over Writable, and calls write_to",
+      lede: "print() isn't hardcoded to know about any particular struct either. It accepts any value whose type conforms to the Writable trait, and internally calls that value's write_to method — handing it a writer object to append pieces of output into, rather than expecting a String back.",
+      code: "def write_to[W: Writer](self, mut writer: W):\n" +
+            "    writer.write(\"(\", self.x, \", \", self.y, \")\")\n\n" +
+            "print(Vec2(1, 2))     # print() found write_to via Writable\n\n" +
+            "# print's real declared signature:\n" +
+            "def print[*Ts: Writable](*values: *Ts.values, ...)\n\n" +
+            "# passing a struct that does NOT implement write_to:\n" +
+            "print(some_pair)\n" +
+            "# error: could not convert element of 'values'\n" +
+            "#        with type 'Pair' to expected type 'Writable'",
+      output: "(1, 2)",
+      note: { tone: "verified", label: "verified", text: "write_to writes pieces INTO a writer rather than building and returning a String — that's why print can stream straight to stdout." } },
+
+    { type: "topic", session: 4, kicker: "session 4 · gotcha", title: "No lambda — use a nested def",
+      lede: "Mojo has no lambda keyword. The compiler's own error message tells you exactly what to reach for instead — a small, named, nested function.",
+      code: "f = lambda x: x + 1\n" +
+            "# error: lambda expressions are not supported;\n" +
+            "#        define a nested function with 'def'\n\n" +
+            "def add_one(x: Int) -> Int:      # plain nested def — sees nothing outer\n" +
+            "    return x + 1\n\n" +
+            "print(add_one(5))",
+      output: "6",
+      note: { tone: "gotcha", label: "gotcha", text: "A plain nested def cannot see the enclosing function's variables — that needs capturing or @parameter, next." } },
+
+    { type: "topic", session: 4, kicker: "session 4 · closures", title: "Capturing an outer variable",
+      lede: "To let a nested function read a variable from its enclosing scope, add capturing right after the parameter list (before the return type). The @parameter decorator does the same job through a different spelling — both are shown below producing identical results.",
+      code: "var n = 10\n\n" +
+            "def add_n(x: Int) capturing -> Int:   # `capturing`, BEFORE the ->\n" +
+            "    return x + n\n" +
+            "print(add_n(5))\n\n" +
+            "@parameter                             # equivalent to `capturing` here\n" +
+            "def add_n2(x: Int) -> Int:\n" +
+            "    return x + n\n" +
+            "print(add_n2(5))",
+      output: "15\n15" },
+
+    { type: "topic", session: 4, kicker: "session 4 · closures", title: "Closures aren't read-only",
+      lede: "A capturing closure isn't limited to reading its outer variable — it can reassign it too. That's exactly what makes a stateful pattern like this counter possible: each call to increment() mutates count in the enclosing scope.",
+      code: "var count = 0\n\n" +
+            "@parameter\n" +
+            "def increment():\n" +
+            "    count += 1\n\n" +
+            "increment()\n" +
+            "increment()\n" +
+            "increment()\n" +
+            "print(count)",
+      output: "3",
+      note: { tone: "verified", label: "verified", text: "A capturing closure can mutate an outer variable too, not just read it — classic stateful counter pattern." } },
+
+    { type: "topic", session: 4, kicker: "session 4 · closures", title: "Closures as compile-time parameters",
+      lede: "A closure can be handed to another function as a compile-time parameter — filter_list doesn't know or care what its predicate captured, it just calls pred(x) for each element. That lets the caller fully control which elements survive, without filter_list itself changing at all.",
+      code: "def filter_list[\n    pred: def(Int) capturing[_] -> Bool\n](xs: List[Int]) -> List[Int]:\n" +
+            "    var result = List[Int]()\n" +
+            "    for x in xs:\n" +
+            "        if pred(x):\n" +
+            "            result.append(x)\n" +
+            "    return result^\n\n" +
+            "var numbers = [1, 5, 8, 2, 9, 3, 12]\n" +
+            "var threshold = 5\n\n" +
+            "@parameter\n" +
+            "def above_threshold(v: Int) -> Bool:\n" +
+            "    return v > threshold\n\n" +
+            "var big = filter_list[above_threshold](numbers)\n" +
+            "print(\"above\", threshold, end=\": \")\n" +
+            "for v in big:\n" +
+            "    print(v, end=\" \")\n" +
+            "print()",
+      output: "above 5: 8 9 12",
+      note: { tone: "gotcha", label: "gotcha", text: "Still not a first-class value: var f = add_n2 fails — capturing closures cannot yet be materialized as runtime values." } },
+
+    // ============================== SESSION 5 ==============================
+    { type: "divider", session: 5, title: "Ownership, Performance & Beyond",
+      blurb: "The ^ operator in depth, a taste of raw performance, calling Python — and a map of what this repo hasn't covered yet.",
+      topics: ["copy vs transfer (^)", "file I/O", "SIMD", "python interop", "where to go next"] },
+
+    { type: "topic", session: 5, id: "toc-ownership", kicker: "session 5 · ownership", title: "Plain assignment copies",
+      lede: "Worth ruling out first, since it's easy to assume assignment always transfers ownership: plain b = a never empties a. It makes an independent copy, and a keeps its original value exactly as before.",
+      code: "var a: String = \"hello\"\n" +
+            "var b = a          # no ^ — plain assignment COPIES\n\n" +
+            "print(a)            # untouched\n" +
+            "print(b)            # independent copy",
+      output: "hello\nhello",
+      note: { tone: "verified", label: "verified", text: "Rule this out first: assignment alone never empties the source. Only ^ changes copy into transfer." } },
+
+    { type: "topic", session: 5, kicker: "session 5 · gotcha", title: "a^ transfers — and enforces it at compile time",
+      lede: "Appending ^ changes assignment from a copy into a transfer of ownership: b now owns the value that a used to hold. The compiler then statically tracks that a no longer owns anything, and refuses to compile any later use of it.",
+      code: "var a: String = \"hello\"\n" +
+            "var b = a^\n\n" +
+            "print(b)\n\n" +
+            "print(a)\n" +
+            "# error: use of uninitialized value 'a'",
+      output: "hello",
+      note: { tone: "gotcha", label: "gotcha", text: "Not a runtime deletion — the check happens entirely at compile time, before the program ever runs. Closer to Rust's move than to delete." } },
+
+    { type: "topic", session: 5, kicker: "session 5 · ownership", title: "^ is a no-op on trivial types like Int",
+      lede: "The transfer check only matters for types that own a resource (a String's backing buffer, for instance). A simple value type like Int has nothing to transfer, so the compiler treats ^ as a harmless no-op instead — the source stays perfectly valid afterward.",
+      code: "var a = 10\n" +
+            "var b = a^\n\n" +
+            "print(b)\n" +
+            "print(a)   # still usable!\n" +
+            "# warning: transfer from a value of trivial register type 'Int'\n" +
+            "#          has no effect and can be removed",
+      output: "10\n10",
+      note: { tone: "verified", label: "verified", text: "Trivial register types (Int, ...) have nothing to own — ^ is a silent no-op, not enforced." } },
+
+    { type: "topic", session: 5, kicker: "session 5 · exercise 15", title: "File I/O basics",
+      lede: "open() returns a file-handle object — call .write() or .read() on it, then .close() explicitly when you're done to flush and release the underlying file descriptor.",
+      code: "var path = \"mojo_file_demo.txt\"\n\n" +
+            "var f = open(path, \"w\")\n" +
+            "f.write(\"hello file\")\n" +
+            "f.close()\n\n" +
+            "var g = open(path, \"r\")\n" +
+            "print(g.read())\n" +
+            "g.close()",
+      output: "hello file",
+      note: { tone: "verified", label: "verified", text: "Prefer `with open(...) as f:` over manual open()/close() pairs — it closes the file automatically even if an error occurs inside the block." } },
+
+    { type: "topic", session: 5, kicker: "session 5 · exercise 15", title: "Append mode",
+      lede: "The mode string passed to open() decides what happens to existing content: \"w\" truncates the file first, \"a\" appends to whatever is already there. The with statement is a context manager — it guarantees the file gets closed when the block ends, even if an error happens inside it.",
+      code: "var path = \"mojo_file_demo.txt\"\n\n" +
+            "with open(path, \"w\") as wf:\n" +
+            "    wf.write(\"first\")\n\n" +
+            "with open(path, \"a\") as wf:      # \"a\" appends instead of truncating\n" +
+            "    wf.write(\" second\")\n\n" +
+            "with open(path, \"r\") as rf:\n" +
+            "    print(rf.read())",
+      output: "first second" },
+
+    { type: "topic", session: 5, kicker: "session 5 · exercise 15", title: "Checking existence",
+      lede: "Check whether a path exists before trying to open it — either the free function exists(), or the equivalent .exists() method on a Path object, whichever fits the surrounding code better.",
+      code: "var path = \"mojo_file_demo.txt\"\n\n" +
+            "print(exists(path))\n" +
+            "print(exists(\"definitely_missing_xyz.txt\"))\n\n" +
+            "var p = Path(path)\n" +
+            "print(p.exists())      # Path works too",
+      output: "True\nFalse\nTrue" },
+
+    { type: "topic", session: 5, kicker: "session 5 · exercise 16", title: "SIMD — a taste of why Mojo is fast",
+      lede: "A single SIMD value packs several numbers into one hardware register, and an operation on it applies to every lane simultaneously in one instruction — the low-level reason Mojo can outperform scalar, one-value-at-a-time code.",
+      code: "var v = SIMD[DType.int32, 4](1, 2, 3, 4)\n\n" +
+            "print(v)\n" +
+            "print(v * 2)       # all four lanes multiplied at once\n" +
+            "print(v + v)",
+      output: "[1, 2, 3, 4]\n[2, 4, 6, 8]\n[2, 4, 6, 8]",
+      note: { tone: "verified", label: "verified", text: "Int, Float64, etc. are actually single-lane SIMD values under the hood." } },
+
+    { type: "topic", session: 5, id: "toc-python-interop", kicker: "session 5 · exercise 17", title: "Calling Python",
+      lede: "Import any Python module by name with Python.import_module, then call its functions directly — the returned object behaves like the real Python object it wraps, math module included.",
+      code: "from std.python import Python\n\n" +
+            "def main() raises:\n" +
+            "    var math = Python.import_module(\"math\")\n" +
+            "    var result = math.sqrt(2.0)\n" +
+            "    print(\"Python math.sqrt(2.0) =\", result)",
+      output: "Python math.sqrt(2.0) = 1.4142135623730951" },
+
+    { type: "topic", session: 5, kicker: "session 5 · exercise 17", title: "Running a compiled Python-interop binary",
+      lede: "mojo build still produces a native binary for interop code — but unlike a pure-Mojo binary, it needs a real CPython runtime discoverable at run time, not just at compile time.",
+      code: "pixi run mojo build exercises/17_python_interop.mojo -o pyintop\n\n" +
+            "pixi run ./pyintop\n" +
+            "# simplest — pixi sets MOJO_PYTHON_LIBRARY automatically\n\n" +
+            "pixi shell\n" +
+            "./pyintop\n" +
+            "# inside the env, the same variable is already set\n\n" +
+            "export MOJO_PYTHON_LIBRARY=\"$PWD/.pixi/envs/default/lib/libpython3.so\"\n" +
+            "./pyintop\n" +
+            "# bare shell — set it by hand first",
+      note: { tone: "gotcha", label: "gotcha", text: "Running ./pyintop in a plain shell with the variable unset produces \u201cFailed to load libpython from :\u201d — the build is fine, the binary just can't find its interpreter. Pure-Mojo binaries like 01_hello need none of this." } },
+
+    { type: "topic", session: 5, kicker: "session 5 · exercise 17", title: "Configuring MOJO_PYTHON_LIBRARY",
+      lede: "This repo sets the variable two complementary ways, so it's found whether you're inside pixi or not.",
+      code: "# pixi.toml — for `pixi run` / `pixi shell` (portable, env-relative)\n" +
+            "[activation.env]\n" +
+            "MOJO_PYTHON_LIBRARY = \"$CONDA_PREFIX/lib/libpython3.so\"\n\n" +
+            "# .devcontainer/Containerfile — a global fallback so even a bare\n" +
+            "# ./binary in a plain shell finds CPython\n" +
+            "ENV MOJO_PYTHON_LIBRARY=\"/workspaces/mojo/.pixi/envs/default/lib/libpython3.so\"",
+      note: { tone: "verified", label: "verified", text: "libpython3.so is the version-agnostic symlink to the bundled CPython. The Containerfile ENV only takes effect after a container rebuild — until then, use pixi run ./binary or export the variable by hand." } },
+
+    { type: "table", session: 5, kicker: "session 5 · verified", title: "The Python dependency is runtime-only, pay-per-use",
+      lede: "That convenience isn't free for every Mojo program — only for the ones that actually ask for it. Comparing the two exercise binaries makes the cost visible.",
+      headers: ["", "01_hello (no Python)", "17_python_interop"],
+      rows: [
+        ["Binary size", "18 KB", "117 KB"],
+        ["Links libpython?", "No", "No — neither does!"],
+        ["Runs standalone?", "Yes", "No — needs CPython at runtime"]
+      ],
+      note: { tone: "verified", label: "verified", text: "Mojo never links libpython at build time. Interop dlopen()s a CPython runtime on demand, only if the program actually uses it." } },
+
+    { type: "topic", session: 5, kicker: "session 5 · orientation", title: "Where things live in this repo",
+      lede: "A quick map for exploring further on your own after this deck ends.",
+      bullets: [
+        "<code>exercises/01…17_*.mojo</code> — one runnable script per topic: <code>mojo run exercises/&lt;file&gt;</code>",
+        "<code>docs/</code> — this deck (mojo-training-slides.html), troubleshooting.md, zed-setup.md, README.md",
+        "<code>src/mojolearn/</code> — for shared code once exercises produce reusable structs/traits",
+        "<code>PIXI_CHEATSHEET.md</code> — command reference"
+      ]},
+
+    // ============================== SESSION 6 ==============================
+    { type: "divider", session: 6, title: "Advanced Topics — External Reference",
+      blurb: "Nine chapters from the standard Mojo course outline that this repo's own exercises don't yet exercise. Content below is adapted from ruhati.net/mojo, not this repo's compiler — treat every snippet as a starting point to test yourself, not a guarantee it still compiles as shown.",
+      topics: ["docs", "parameters", "memory & pointers", "metaprogramming", "advanced functions", "modules & packages", "C interop", "MLIR interop", "GPU"] },
+
+    { type: "topic", session: 6, id: "toc-documenting", kicker: "session 6 · documenting your code", title: "Docstrings and mojo doc",
+      lede: "A docstring is a triple-quoted string placed as the very first statement inside a function (or at the top of a file, for module-level docs). The mojo doc tool can then generate reference documentation directly from it — no separate doc-comment syntax to learn.",
+      code: "def my_function(text: String):\n" +
+            "    \"\"\"\n" +
+            "    This is a docstring summary.\n" +
+            "    A second line can add more detail.\n" +
+            "    \"\"\"\n" +
+            "    print(text)\n\n" +
+            "my_function(\"Hello World!\")\n\n" +
+            "# generate documentation from the docstrings in a file:\n" +
+            "# pixi run mojo doc my_file.mojo",
+      output: "Hello World!",
+      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "The first sentence of a docstring is treated as its one-line summary. Not run against this repo's Mojo 1.0.0b2 compiler — check it still applies before relying on it." } },
+
+    { type: "topic", session: 6, id: "toc-parameters", kicker: "session 6 · parameters & compile-time programming", title: "Parameters go further than generics",
+      lede: "Sessions 1–5 already used square-bracket parameters for generics (T: Greet). The fuller picture: parentheses always mean \u201csupply this at runtime,\u201d square brackets always mean \u201cresolve this at compile time\u201d — and a parameter can be a type, a value, or even a Bool.",
+      code: "def add[cond: Bool](a: Int, b: Int) -> Int:\n" +
+            "    return a + b if cond else 0\n\n" +
+            "print(add[True](3, 4))     # cond is baked in at compile time\n\n" +
+            "struct MyStruct[T: Intable]:\n" +
+            "    var value: Int\n\n" +
+            "    def __init__(out self, value: T):\n" +
+            "        self.value = Int(value)",
+      output: "7",
+      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "cond: Bool as a compile-time parameter, and where clauses that constrain parameter values (e.g. where value >= 0), go beyond the T: Trait generics shown in Session 4 — not verified against this repo's compiler." } },
+
+    { type: "topic", session: 6, id: "toc-memory", kicker: "session 6 · memory, references & pointers", title: "Beyond ^ : explicit borrowing and raw pointers",
+      lede: "Session 5 covered ^ (transfer) and plain assignment (copy). The fuller ownership model adds explicit borrowing conventions on function parameters, plus pointer types for manual memory control when you need it.",
+      code: "def take_owned(b: String):      # b^ at the call site transfers b in\n" +
+            "    print(b)\n\n" +
+            "def take_borrowed(c: String):   # no ^ — reads c without taking it\n" +
+            "    print(c)\n\n" +
+            "var s = \"hello\"\n" +
+            "take_borrowed(s)     # s is still valid afterward\n" +
+            "take_owned(s^)       # s is no longer valid afterward\n\n" +
+            "var p = UnsafePointer[Int].alloc(1)   # manual heap allocation\n" +
+            "p.init_pointee_copy(10)\n" +
+            "print(p[])\n" +
+            "p.destroy_pointee()\n" +
+            "p.free()",
+      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "UnsafePointer is exactly what it sounds like — no bounds checking, no automatic cleanup. ArcPointer offers reference-counted shared ownership for when a single owner isn't enough. Neither is exercised in this repo; verify the exact API surface against your installed Mojo version first." } },
+
+    { type: "topic", session: 6, id: "toc-metaprogramming", kicker: "session 6 · metaprogramming", title: "Compile-time code that inspects code",
+      lede: "Where Session 4's generics check \u201cdoes this type implement this trait,\u201d metaprogramming can branch on that answer at compile time and produce different code paths per type — with zero runtime cost, since the branch never exists in the compiled output.",
+      code: "def multiply(first: Scalar, second: type_of(first)) -> type_of(first):\n" +
+            "    return first * second\n\n" +
+            "def ability[T: Animal](x: T):\n" +
+            "    if conforms_to[T, CanFly]():    # resolved at compile time\n" +
+            "        print(\"it can fly\")",
+      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "type_of(first) and conforms_to[T, Trait]() go past Session 4's generics into full compile-time reflection and conditional trait conformance — not exercised in this repo." } },
+
+    { type: "topic", session: 6, id: "toc-advanced-functions", kicker: "session 6 · advanced usage of functions", title: "Variadics and overload resolution",
+      lede: "Session 2 covered fixed parameter lists with defaults. Functions can also accept a variable number of positional or keyword arguments, and overloads are resolved by argument and parameter types — never by return type alone.",
+      code: "def add_all(*args: Int) -> Int:\n" +
+            "    var total = 0\n" +
+            "    for a in args:\n" +
+            "        total += a\n" +
+            "    return total\n\n" +
+            "print(add_all(1, 2, 3, 4))    # variadic — any number of Int arguments\n\n" +
+            "def add(a: Int, b: Int) -> Int:\n" +
+            "    return a + b\n\n" +
+            "def add(a: Int, b: Bool) -> Int:      # overload — resolved by argument type\n" +
+            "    return a + 2 if b else a",
+      output: "10",
+      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "Two overloads that differ only in return type are rejected — Mojo resolves overloads strictly by argument and parameter types, never by what the caller does with the result." } },
+
+    { type: "topic", session: 6, id: "toc-modules", kicker: "session 6 · modules & packages", title: "Modules are files, packages are directories",
+      lede: "A module is just a .mojo file, imported by its filename. A package is a directory containing an __init__.mojo (even an empty one), which makes the whole directory importable as a single unit.",
+      code: "# my_module.mojo\n" +
+            "def print_module_message():\n" +
+            "    print(\"hello from my_module\")\n\n" +
+            "# main.mojo\n" +
+            "import my_module\n" +
+            "my_module.print_module_message()\n\n" +
+            "# mypackage/__init__.mojo (can be empty, or re-export selectively)\n" +
+            "from .inner_module import print_packaged_message\n\n" +
+            "# main.mojo\n" +
+            "import mypackage\n" +
+            "mypackage.print_packaged_message()",
+      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "pixi run mojo package mypackage compiles a package to a distributable form that hides its source — relevant once code grows past single-file exercises like this repo's." } },
+
+    { type: "topic", session: 6, id: "toc-c-interop", kicker: "session 6 · C interoperability", title: "Calling C, and being called from C",
+      lede: "Mojo can call into C directly through its foreign-function interface — either standard C library functions by name, or functions loaded dynamically from a shared library at runtime — and a Mojo function can be exported for C code to call back.",
+      code: "from std.ffi import c_int, external_call\n\n" +
+            "var r = external_call[\"rand\", c_int]()    # calls libc's rand() directly\n\n" +
+            "var lib = OwnedDLHandle(\"./libmymath.so\")\n" +
+            "var mul = lib.get_function[def(c_int, c_int) -> c_int](\"mul\")\n" +
+            "print(mul(5, 10))\n\n" +
+            "@export\n" +
+            "def add(a: Int32, b: Int32) -> Int32:      # callable FROM C\n" +
+            "    return a + b\n" +
+            "# compiled with: mojo build --emit object add.mojo",
+      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "external_call reaches existing C functions; @export makes a Mojo function callable from C code. Neither is exercised in this repo, and exact signatures may have shifted since this was written." } },
+
+    { type: "topic", session: 6, id: "toc-mlir", kicker: "session 6 · MLIR interoperability", title: "Dropping down to the compiler's own IR",
+      lede: "Mojo's compiler is itself built on MLIR (Multi-Level Intermediate Representation) rather than a custom IR — and it exposes that layer directly, letting code drop to raw MLIR types and operations when nothing higher-level fits.",
+      code: "# a raw MLIR type used in place of a Mojo type\n" +
+            "var bits: __mlir_type.i1\n\n" +
+            "# a raw MLIR operation invoked directly\n" +
+            "var idx = __mlir_op.`index.castu`[_type=__mlir_type.index](value)",
+      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "This is the escape hatch beneath the whole language — for systems programmers doing bit-level or hardware-specific work that Mojo's normal types don't expose. Not something typical application code reaches for, and not exercised in this repo." } },
+
+    { type: "topic", session: 6, id: "toc-gpu", kicker: "session 6 · GPU programming", title: "The same language, running on the GPU",
+      lede: "Mojo's headline differentiator: the same language used for Session 1's hello-world can also write GPU kernels — functions that run in parallel across thousands of GPU threads, organized into blocks and grids, without switching to CUDA or a separate shading language.",
+      code: "def add_two(result: UnsafePointer[Float32], a: UnsafePointer[Float32], b: UnsafePointer[Float32]):\n" +
+            "    var i = block_idx.x * block_dim.x + thread_idx.x   # this thread's index\n" +
+            "    result[i] = a[i] + b[i]\n\n" +
+            "with DeviceContext() as ctx:\n" +
+            "    var compiled = ctx.compile_function[add_two]()\n" +
+            "    ctx.enqueue_function(compiled, result_buf, a_buf, b_buf, grid_dim=8, block_dim=8)\n" +
+            "    ctx.synchronize()",
+      note: { tone: "external", label: "external reference — ruhati.net, unverified here", text: "thread_idx/block_idx identify which of the thousands of parallel invocations is currently running — the same kernel body executes once per GPU thread. Needs actual GPU hardware to run; not exercised in this repo (or this devcontainer)." } },
+
+    { type: "closing", title: "Questions?",
+      links: [
+        { l: "docs/README.md", d: "start here — index of the full notes" },
+        { l: "docs/language-notes.md", d: "every verified gotcha in this deck, with compiler proofs" },
+        { l: "docs/mojo-tutorial.md", d: "the beginner-friendly walkthrough this deck is built on" },
+        { l: "docs/troubleshooting.md", d: "fixes for errors actually hit in this devcontainer" },
+        { l: "ruhati.net/mojo", d: "broader chapter map for topics beyond this repo — verify against the compiler before trusting" },
+        { l: "nikhilpagote.uk/tutorials/mojo", d: "companion tutorial site for this deck" }
+      ]}
+  ];
+
+  // ---- assign a running index + resolve session dividers for quick-jump ----
+  var sessionJump = {};
+  SLIDES.forEach(function (s, i) { if (s.type === "divider") sessionJump[s.session] = i; });
+
+  var idIndex = {};
+  SLIDES.forEach(function (s, i) { if (s.id) idIndex[s.id] = i; });
+
+  // ---- full chapter map (matches the standard Mojo course outline) ----
+  // Session 6 chapters are sourced from ruhati.net, not this repo's own
+  // exercises — the tag/row styling flags that distinction, not coverage.
+  var TOC = [
+    { n: 1,  label: "Introduction", target: "toc-intro" },
+    { n: 2,  label: "Getting started", target: "toc-getting-started" },
+    { n: 3,  label: "Functions", target: "toc-functions" },
+    { n: 4,  label: "Constants and variables", target: "toc-variables" },
+    { n: 5,  label: "Types", target: "toc-types" },
+    { n: 6,  label: "Documenting your code", target: "toc-documenting" },
+    { n: 7,  label: "Struct", target: "toc-struct" },
+    { n: 8,  label: "Trait", target: "toc-trait" },
+    { n: 9,  label: "Control flow", target: "toc-control-flow" },
+    { n: 10, label: "Error handling", target: "toc-error-handling" },
+    { n: 11, label: "Operators and special methods", target: "toc-operators" },
+    { n: 12, label: "Parameters and compile-time programming", target: "toc-parameters" },
+    { n: 13, label: "Ownership and lifecycle", target: "toc-ownership" },
+    { n: 14, label: "Memory management, references and pointers", target: "toc-memory" },
+    { n: 15, label: "Metaprogramming", target: "toc-metaprogramming" },
+    { n: 16, label: "Advanced usage of functions", target: "toc-advanced-functions" },
+    { n: 17, label: "Organizing code with modules and packages", target: "toc-modules" },
+    { n: 18, label: "Python interoperability", target: "toc-python-interop" },
+    { n: 19, label: "C interoperability", target: "toc-c-interop" },
+    { n: 20, label: "MLIR interoperability", target: "toc-mlir" },
+    { n: 21, label: "GPU programming", target: "toc-gpu" }
+  ];
+
+  var idx = 0;
+  var stage = document.getElementById("stage");
+  var counterEl = document.getElementById("counter");
+  var sessionLabelEl = document.getElementById("sessionLabel");
+  var progressFill = document.getElementById("progressFill");
+
+  function noteHTML(note) {
+    if (!note) return "";
+    return '<div class="callout ' + note.tone + '"><span class="lbl">// ' + note.label + '</span><p>' + note.text + "</p></div>";
+  }
+
+  function codePane(code, output) {
+    var out = output ? '<div class="output-pane"><b>output</b>' + esc(output) + "</div>" : "";
+    return '<div class="col"><div class="code-pane"><div class="chrome"><i></i><i></i><i></i></div>' +
+      "<pre><code>" + hl(code) + "</code></pre></div>" + out + "</div>";
+  }
+
+  function renderTopic(s) {
+    var hasCode = !!s.code;
+    var gridClass = hasCode ? "with-code" : "solo";
+    var left = '<div class="col">' +
+      (s.lede ? '<p class="lede">' + s.lede + "</p>" : "") +
+      (s.bullets ? '<ul class="bullets">' + s.bullets.map(function (b) { return "<li>" + b + "</li>"; }).join("") + "</ul>" : "") +
+      noteHTML(s.note) +
+      "</div>";
+    var right = hasCode ? codePane(s.code, s.output) : "";
+    return '<div class="eyebrow"># ' + s.kicker + '</div><h2 class="title">' + s.title + '</h2>' +
+      '<div class="body-grid ' + gridClass + '">' + left + right + "</div>";
+  }
+
+  function renderCompare(s) {
+    function col(c) {
+      return '<div class="col"><div class="code-pane" style="padding:1.1rem 1.3rem;">' +
+        '<div style="font-family:var(--font-mono);color:var(--forge);font-size:.85rem;margin-bottom:.7rem;">' + c.label + "</div>" +
+        '<ul class="bullets">' + c.bullets.map(function (b) { return "<li>" + b + "</li>"; }).join("") + "</ul></div></div>";
+    }
+    return '<div class="eyebrow"># ' + s.kicker + '</div><h2 class="title">' + s.title + '</h2>' +
+      '<div class="body-grid compare2">' + col(s.left) + col(s.right) + "</div>" +
+      noteHTML(s.note);
+  }
+
+  function renderTable(s) {
+    var thead = "<tr>" + s.headers.map(function (h) { return "<th>" + h + "</th>"; }).join("") + "</tr>";
+    var rows = s.rows.map(function (r) { return "<tr>" + r.map(function (c) { return "<td>" + c + "</td>"; }).join("") + "</tr>"; }).join("");
+    return '<div class="eyebrow"># ' + s.kicker + '</div><h2 class="title">' + s.title + '</h2>' +
+      (s.lede ? '<p class="lede">' + s.lede + "</p>" : "") +
+      '<div class="body-grid solo"><div class="col"><div class="tbl-wrap"><table class="data"><thead>' + thead + "</thead><tbody>" + rows + "</tbody></table></div>" +
+      noteHTML(s.note) + "</div></div>";
+  }
+
+  function renderCover(s) {
+    return '<div class="glow"></div><div class="kicker"># ' + s.kicker + "</div>" +
+      "<h1>" + s.title + "</h1>" +
+      '<p class="tag">' + s.subtitle + "</p>" +
+      '<div class="meta">' + s.meta.map(function (m) { return "<span>· " + m + "</span>"; }).join("") + "</div>";
+  }
+
+  function renderAgenda() {
+    var rows = TOC.map(function (item) {
+      var idx = idIndex[item.target];
+      var external = idx !== undefined && SLIDES[idx].session === 6;
+      var tag = idx !== undefined ? "session " + SLIDES[idx].session + (external ? " · external source" : "") : "";
+      var cls = "toc-row" + (external ? " toc-row--ext" : "");
+      var attrs = idx !== undefined
+        ? ' data-target="' + idx + '" tabindex="0" role="button"'
+        : "";
+      return '<div class="' + cls + '"' + attrs + '>' +
+        '<div class="toc-n">' + String(item.n).padStart(2, "0") + '</div>' +
+        '<div class="toc-label">' + item.label + '</div>' +
+        '<div class="toc-tag">' + tag + "</div></div>";
+    }).join("");
+    return '<div class="eyebrow"># table of contents</div><h2 class="title">Mojo — full chapter map</h2>' +
+      '<p class="lede">All 21 chapters of the standard Mojo course outline. Sessions 1\u20135 are this repo\u2019s own compiler-verified exercises; Session 6 (marked \u201cexternal source\u201d) is adapted from ruhati.net/mojo and hasn\u2019t been run against this build.</p>' +
+      '<div class="toc-list">' + rows + "</div>";
+  }
+
+  function renderDivider(s) {
+    return '<div class="glow"></div><div class="num">' + String(s.session).padStart(2, "0") + "</div>" +
+      "<h2>" + s.title + "</h2>" +
+      '<p class="lede">' + s.blurb + "</p>" +
+      '<div class="chips">' + s.topics.map(function (t) { return "<span>" + t + "</span>"; }).join("") + "</div>";
+  }
+
+  function renderClosing(s) {
+    return '<div class="eyebrow"># wrap-up</div><h2 class="title">' + s.title + '</h2>' +
+      '<div class="closing-list">' + s.links.map(function (l) {
+        return '<div class="closing-row"><div class="l">' + l.l + '</div><div class="d">' + l.d + "</div></div>";
+      }).join("") + "</div>";
+  }
+
+  function render() {
+    var s = SLIDES[idx];
+    var el = document.createElement("div");
+    el.className = "slide";
+    if (s.type === "cover" || s.type === "divider") el.classList.add("hero");
+    var html = "";
+    if (s.type === "cover") html = renderCover(s);
+    else if (s.type === "agenda") html = renderAgenda();
+    else if (s.type === "divider") html = renderDivider(s);
+    else if (s.type === "compare") html = renderCompare(s);
+    else if (s.type === "table") html = renderTable(s);
+    else if (s.type === "closing") html = renderClosing(s);
+    else html = renderTopic(s);
+    el.innerHTML = html;
+
+    var old = stage.querySelector(".slide");
+    if (old) old.remove();
+    stage.insertBefore(el, stage.firstChild);
+
+    progressFill.style.width = ((idx + 1) / SLIDES.length * 100) + "%";
+    counterEl.textContent = String(idx + 1).padStart(3, "0") + " / " + String(SLIDES.length).padStart(3, "0");
+    var sess = s.session ? SESSIONS[s.session - 1] : null;
+    sessionLabelEl.textContent = sess ? ("session " + sess.n + " — " + sess.title) : "";
+    el.scrollTop = 0;
+  }
+
+  function go(n) {
+    idx = Math.max(0, Math.min(SLIDES.length - 1, n));
+    render();
+  }
+  function next() { go(idx + 1); }
+  function prev() { go(idx - 1); }
+
+  document.getElementById("zoneLeft").addEventListener("click", prev);
+  document.getElementById("zoneRight").addEventListener("click", next);
+
+  function tocRowFor(el) {
+    while (el && el !== stage) {
+      if (el.classList && el.classList.contains("toc-row")) return el;
+      el = el.parentNode;
+    }
+    return null;
+  }
+  stage.addEventListener("click", function (e) {
+    var row = tocRowFor(e.target);
+    if (row && row.getAttribute("data-target") !== null) go(parseInt(row.getAttribute("data-target"), 10));
+  });
+  stage.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    var row = tocRowFor(e.target);
+    if (row && row.getAttribute("data-target") !== null) {
+      e.preventDefault();
+      e.stopPropagation();
+      go(parseInt(row.getAttribute("data-target"), 10));
+    }
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); next(); }
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "PageUp") { e.preventDefault(); prev(); }
+    else if (e.key === "Home") { e.preventDefault(); go(0); }
+    else if (e.key === "End") { e.preventDefault(); go(SLIDES.length - 1); }
+    else if (e.key === "0") { go(0); }
+    else if (/^[1-6]$/.test(e.key) && sessionJump[+e.key] !== undefined) { go(sessionJump[+e.key]); }
+  });
+
+  // ---- theme toggle ----
+  var themeBtn = document.getElementById("themeBtn");
+  function applyStoredTheme() {
+    var t = null;
+    try { t = localStorage.getItem("mojo-deck-theme"); } catch (err) {}
+    if (t) document.documentElement.setAttribute("data-theme", t);
+  }
+  applyStoredTheme();
+  themeBtn.addEventListener("click", function () {
+    var current = document.documentElement.getAttribute("data-theme");
+    var next = current === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem("mojo-deck-theme", next); } catch (err) {}
+  });
+
+  render();
+})();
+</script>

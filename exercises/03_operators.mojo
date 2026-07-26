@@ -171,4 +171,4 @@ def main():
     #   print(s4)   # world
     #   print(s3)   # error: use of uninitialized value 's3'
     #
-    # See docs/language-notes.md's `^` section for the full writeup.
+    # See docs/mojo-training-slides.html Session 5 for the full writeup on `^`.

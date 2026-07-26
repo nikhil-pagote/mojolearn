@@ -13,13 +13,13 @@ Create the next runnable exercise in `exercises/`, correct for this build
 1. **Pick the number.** Exercise numbers follow a pedagogical learning-curve
    order (fundamentals → data/collections → error handling → structs/OOP
    substitutes → advanced/specialized), NOT just "append to the end" — check
-   `docs/mojo-tutorial.md`'s exercises table to see where the new topic
+   `docs/README.md`'s exercises index to see where the new topic
    actually belongs, and be prepared to renumber existing files (via `git mv`
    through temporary names to avoid collisions) if inserting in the middle.
    Derive a short snake_case name from the topic: `NN_<topic>.mojo`.
 
 2. **Write the file** using ONLY this build's verified syntax (see
-   `.claude/agents/mojo-expert.md` and `docs/language-notes.md`):
+   `.claude/agents/mojo-expert.md` and `docs/mojo-training-slides.html`):
    - `def` only (no `fn`), `var` only (no `let`).
    - `@fieldwise_init` for structs with a fieldwise constructor.
    - Stdlib under `std.` (`from std.collections import List`, etc.).
@@ -35,7 +35,7 @@ Create the next runnable exercise in `exercises/`, correct for this build
    `MOJO_PYTHON_LIBRARY=$(find .pixi/envs/default/lib -maxdepth 1 -name 'libpython3*.so' | head -1)`.
    Fix any error and re-run until it passes cleanly.
 
-4. **Link it (optional).** If it maps to a tutorial section, add a row to the
-   exercises table in `docs/mojo-tutorial.md`.
+4. **Link it (optional).** If it maps to a training-deck session, add a row to
+   the exercises index in `docs/README.md`.
 
 5. **Report** the file path, what it demonstrates, and the actual output.

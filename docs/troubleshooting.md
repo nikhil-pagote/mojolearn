@@ -41,12 +41,12 @@ so a fresh `pixi install` bakes correct paths.
 
 Not a broken install — in this build the stdlib is namespaced under `std.`.
 Use `from std.math import sqrt`, not `from math import sqrt`. See
-[language-notes.md](language-notes.md).
+[the training deck](mojo-training-slides.html), Session 1.
 
 ## `cannot call function that may raise in a context that cannot raise`
 
 Your `def main()` calls a raising API. Mark it `def main() raises:`. See
-[language-notes.md](language-notes.md).
+[the training deck](mojo-training-slides.html), Session 1.
 
 ## Python interop aborts: `Py_Initialize` / `PyErr_GetRaisedException` / `Failed to load libpython from :`
 
@@ -58,7 +58,7 @@ is unset — Mojo then finds nothing (note the empty path in `from :`) or falls
 back to an old system Python (`PyErr_GetRaisedException is not available`). Run
 it via `pixi run ./pyintop`, or
 `export MOJO_PYTHON_LIBRARY="$PWD/.pixi/envs/default/lib/libpython3.so"` first.
-Full detail: [python-interop.md](python-interop.md).
+Full detail: [the training deck](mojo-training-slides.html), Session 5.
 
 ## `mojo format` / `mblack` silently do nothing
 
