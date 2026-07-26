@@ -1,14 +1,28 @@
 # Closures: no `lambda` in this build — nested `def` is the substitute, and
 # capturing an outer variable needs either `capturing` or `@parameter`.
-# See docs/language-notes.md for the full writeup (incl. what Context7's docs
-# got right, and where they mixed in outdated syntax).
+# See docs/mojo-training-slides.html Session 4 for the full writeup.
 # Run: pixi run mojo run exercises/14_closures.mojo
+
+from std.collections import List
 
 
 # A capturing closure can be passed into another function at COMPILE TIME via
 # this parameter-type syntax (note: `def(...)`, not the old `fn(...)`).
 def use_closure[func: def(Int) capturing[_] -> Int](num: Int) -> Int:
     return func(num)
+
+
+# --- Custom example: a generic filter that accepts ANY predicate closure as
+# a compile-time parameter. `filter_list` doesn't know or care what the
+# closure captured — it just calls `pred(x)` for each element. ---
+def filter_list[
+    pred: def(Int) capturing[_] -> Bool
+](xs: List[Int]) -> List[Int]:
+    var result = List[Int]()
+    for x in xs:
+        if pred(x):
+            result.append(x)
+    return result^
 
 
 def main():
@@ -45,6 +59,37 @@ def main():
         return x + i
 
     print(use_closure[add_x](2))  # 3
+
+    # --- Custom example 1: closures aren't read-only — a capturing closure
+    # can MUTATE an outer variable too, not just read it. Classic stateful
+    # counter pattern. ---
+    var count = 0
+
+    @parameter
+    def increment():
+        count += 1
+
+    increment()
+    increment()
+    increment()
+    print("count:", count)  # count: 3
+
+    # --- Custom example 2: a practical use — filtering a List with a
+    # predicate closure that captures a threshold from the enclosing scope
+    # (see filter_list above). Change `threshold` and the same closure code
+    # filters differently, with no need to touch filter_list itself. ---
+    var numbers = [1, 5, 8, 2, 9, 3, 12]
+    var threshold = 5
+
+    @parameter
+    def above_threshold(v: Int) -> Bool:
+        return v > threshold
+
+    var big = filter_list[above_threshold](numbers)
+    print("above", threshold, end=": ")
+    for v in big:
+        print(v, end=" ")
+    print()  # above 5: 8 9 12
 
     # --- Current limitation: a capturing closure can't be assigned to a
     # variable / stored as a plain runtime value.
