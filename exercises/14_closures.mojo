@@ -78,7 +78,10 @@ def main():
     # predicate closure that captures a threshold from the enclosing scope
     # (see filter_list above). Change `threshold` and the same closure code
     # filters differently, with no need to touch filter_list itself. ---
-    var numbers = [1, 5, 8, 2, 9, 3, 12]
+    # Mojo 1.0 changed list-literal inference: `[1, 2, 3]` alone now defaults
+    # to Array[Int, N], not List[Int] — the annotation below is required for
+    # filter_list's `List[Int]` parameter to accept it.
+    var numbers: List[Int] = [1, 5, 8, 2, 9, 3, 12]
     var threshold = 5
 
     @parameter

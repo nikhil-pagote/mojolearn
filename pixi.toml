@@ -13,4 +13,4 @@ version = "0.1.0"
 MOJO_PYTHON_LIBRARY = "$CONDA_PREFIX/lib/libpython3.so"
 
 [dependencies]
-mojo = ">=1.0.0b2,<2"
+mojo = ">=1.0.0"

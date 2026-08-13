@@ -168,6 +168,8 @@
   .callout.verified .lbl { color: var(--good); }
   .callout.external { border-color: var(--forge); }
   .callout.external .lbl { color: var(--forge); }
+  .callout.changed { border-color: var(--warn); }
+  .callout.changed .lbl { color: var(--warn); }
 
   /* ---------- table ---------- */
   .tbl-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; }
@@ -286,7 +288,7 @@
     code = code.replace(/@\w+/g, function (m) { return '<span class="tok-dec">' + m + "</span>"; });
     code = code.replace(/\b\d+\.?\d*\b/g, function (m) { return '<span class="tok-num">' + m + "</span>"; });
     code = code.replace(/\b(?!True\b|False\b|None\b)([A-Z]\w*)\b/g, function (m) { return '<span class="tok-typ">' + m + "</span>"; });
-    code = code.replace(/\b(def|struct|trait|var|from|import|return|if|elif|else|for|in|while|try|except|finally|raise|raises|True|False|None|self|mut|out|capturing|pass|with|as|and|or|not|is)\b/g,
+    code = code.replace(/\b(def|struct|trait|var|from|import|return|if|elif|else|for|in|while|try|except|finally|raise|raises|True|False|None|self|mut|out|capturing|lambda|imm|read|pass|with|as|and|or|not|is)\b/g,
       function (m) { return '<span class="tok-kw">' + m + "</span>"; });
     code = code.replace(/\u0000x(\d+)x\u0000/g, function (_, i) { return stash[i]; });
     return code;
@@ -302,7 +304,7 @@
   ];
 
   var SLIDES = [
-    { type: "cover", kicker: "training deck · mojo 1.0.0b2", title: "Mojo",
+    { type: "cover", kicker: "training deck · written for mojo 1.0.0b2 · verified against 1.0.0", title: "Mojo",
       subtitle: "A hands-on tour of a compiled, Python-shaped systems language — from hello world to ownership, traits, and SIMD.",
       meta: ["17 verified exercises", "5 sessions", "pixi + devcontainer"] },
 
@@ -440,14 +442,14 @@
 
     { type: "table", session: 1, kicker: "session 1 · recap", title: "If you've read a Mojo tutorial elsewhere already",
       lede: "A quick-reference recap of everything Session 1 just covered, framed as direct substitutions — keep this in your back pocket whenever an online example won't compile here.",
-      headers: ["Tutorials elsewhere show", "This build (1.0.0b2) requires"],
+      headers: ["Tutorials elsewhere show", "This build requires"],
       rows: [
         ["fn name(...)", "def name(...) — fn removed entirely, even for methods"],
         ["let x = ...", "var x = ... — let removed"],
         ["@value on structs", "@fieldwise_init"],
         ["from math import sqrt", "from std.math import sqrt — whole stdlib under std."],
         ["inout self / inout x", "mut self / mut x"],
-        ["borrowed x (immutable arg)", "read x — and it's the default, usually omitted"],
+        ["borrowed x (immutable arg)", "read x — the default, usually omitted. <b>Changed in 1.0.0:</b> borrowed no longer parses at all (was already gone in b2); read itself is now deprecated in favour of imm, with a compiler warning telling you so."],
         ["owned x (take ownership)", "var x"]
       ],
       note: { tone: "verified", label: "verified", text: "When in doubt, verify against the installed compiler, not a website — every code sample in this deck was." } },
@@ -676,7 +678,8 @@
             "for y in ys:\n" +
             "    total += y\n" +
             "print(total)",
-      output: "60" },
+      output: "60",
+      note: { tone: "changed", label: "changed in 1.0.0", text: "Bare [10, 20, 30] now infers Array[Int, 3], not List — this slide's own example still runs (Array iterates the same way), but passing it to something typed List[Int] will fail to compile. Write var ys: List[Int] = [10, 20, 30] when you specifically need a List." } },
 
     { type: "topic", session: 3, kicker: "session 3 · collections", title: "Dict",
       lede: "A hash map from keys to values, indexed with square brackets — assignment inserts or overwrites a key, and reading a missing key raises (Dict access happens in a raises context for that reason).",
@@ -1005,16 +1008,16 @@
       output: "(1, 2)",
       note: { tone: "verified", label: "verified", text: "write_to writes pieces INTO a writer rather than building and returning a String — that's why print can stream straight to stdout." } },
 
-    { type: "topic", session: 4, kicker: "session 4 · gotcha", title: "No lambda — use a nested def",
-      lede: "Mojo has no lambda keyword. The compiler's own error message tells you exactly what to reach for instead — a small, named, nested function.",
+    { type: "topic", session: 4, kicker: "session 4 · gotcha", title: "No lambda (b2) — use a nested def",
+      lede: "In this build's original (b2) form, Mojo had no lambda keyword — the compiler's error message told you exactly what to reach for instead: a small, named, nested function. A plain nested def like this can't see the enclosing function's variables; that needs capturing or @parameter, next.",
       code: "f = lambda x: x + 1\n" +
-            "# error: lambda expressions are not supported;\n" +
-            "#        define a nested function with 'def'\n\n" +
+            "# b2 error: lambda expressions are not supported;\n" +
+            "#           define a nested function with 'def'\n\n" +
             "def add_one(x: Int) -> Int:      # plain nested def — sees nothing outer\n" +
             "    return x + 1\n\n" +
             "print(add_one(5))",
       output: "6",
-      note: { tone: "gotcha", label: "gotcha", text: "A plain nested def cannot see the enclosing function's variables — that needs capturing or @parameter, next." } },
+      note: { tone: "changed", label: "changed in 1.0.0", text: "lambda is now a real keyword: lambda (x: Int) -> Int: x + 1 (parenthesized args with explicit types required — the same code above now errors with a different message: \"unparenthesized lambda arguments are not supported\"). Unlike capturing/@parameter closures, a lambda IS a first-class runtime value — assignable to a var and callable normally." } },
 
     { type: "topic", session: 4, kicker: "session 4 · closures", title: "Capturing an outer variable",
       lede: "To let a nested function read a variable from its enclosing scope, add capturing right after the parameter list (before the return type). The @parameter decorator does the same job through a different spelling — both are shown below producing identical results.",
@@ -1049,7 +1052,7 @@
             "        if pred(x):\n" +
             "            result.append(x)\n" +
             "    return result^\n\n" +
-            "var numbers = [1, 5, 8, 2, 9, 3, 12]\n" +
+            "var numbers: List[Int] = [1, 5, 8, 2, 9, 3, 12]  # 1.0.0: annotation required, see below\n" +
             "var threshold = 5\n\n" +
             "@parameter\n" +
             "def above_threshold(v: Int) -> Bool:\n" +
@@ -1060,7 +1063,7 @@
             "    print(v, end=\" \")\n" +
             "print()",
       output: "above 5: 8 9 12",
-      note: { tone: "gotcha", label: "gotcha", text: "Still not a first-class value: var f = add_n2 fails — capturing closures cannot yet be materialized as runtime values." } },
+      note: { tone: "gotcha", label: "gotcha", text: "Still not a first-class value: var f = add_n2 fails — capturing closures cannot yet be materialized as runtime values (confirmed unchanged in 1.0.0). A lambda can be, though — see the previous slide's callout. Also note: bare list literals like numbers above now infer Array by default in 1.0.0, hence the explicit List[Int] annotation." } },
 
     // ============================== SESSION 5 ==============================
     { type: "divider", session: 5, title: "Ownership, Performance & Beyond",
@@ -1234,7 +1237,7 @@
             "print(p[])\n" +
             "p.destroy_pointee()\n" +
             "p.free()",
-      note: { tone: "verified", label: "note", text: "UnsafePointer is exactly what it sounds like — no bounds checking, no automatic cleanup. ArcPointer offers reference-counted shared ownership for when a single owner isn't enough." } },
+      note: { tone: "changed", label: "changed in 1.0.0 — needs a fix", text: "This exact snippet no longer compiles: UnsafePointer is deprecated in favour of Pointer (confirmed via compiler warning: \"'UnsafePointer' is deprecated, use 'Pointer' instead\"), but Pointer[Int].alloc(...) doesn't exist — the replacement allocation API wasn't pinned down in this pass, so treat the pointer lines as unverified until someone chases that down. UnsafePointer/Pointer are otherwise exactly what they sound like — no bounds checking, no automatic cleanup. ArcPointer offers reference-counted shared ownership for when a single owner isn't enough." } },
 
     { type: "topic", session: 6, id: "toc-metaprogramming", kicker: "session 6 · metaprogramming", title: "Compile-time code that inspects code",
       lede: "Where Session 4's generics check \u201cdoes this type implement this trait,\u201d metaprogramming can branch on that answer at compile time and produce different code paths per type — with zero runtime cost, since the branch never exists in the compiled output.",
@@ -1305,7 +1308,7 @@
             "    var compiled = ctx.compile_function[add_two]()\n" +
             "    ctx.enqueue_function(compiled, result_buf, a_buf, b_buf, grid_dim=8, block_dim=8)\n" +
             "    ctx.synchronize()",
-      note: { tone: "verified", label: "note", text: "thread_idx/block_idx identify which of the thousands of parallel invocations is currently running — the same kernel body executes once per GPU thread." } },
+      note: { tone: "changed", label: "changed in 1.0.0", text: "thread_idx/block_idx identify which of the thousands of parallel invocations is currently running — the same kernel body executes once per GPU thread. Also: UnsafePointer above is deprecated in favour of Pointer (same compiler warning as the earlier memory slide). This snippet was never run in this repo (no GPU in the devcontainer), so it's illustrative only — untested either way, before or after 1.0.0." } },
 
     { type: "closing", title: "Questions?",
       links: [

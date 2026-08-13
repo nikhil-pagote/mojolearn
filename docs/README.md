@@ -3,7 +3,7 @@ title: Mojo Learning Notes
 description: Index of in-repo Mojo learning material — the training deck plus environment/IDE notes.
 status: reference
 tags: [index, docs]
-updated: 2026-07-26
+updated: 2026-08-13
 ---
 
 # Mojo Learning Notes
@@ -12,8 +12,10 @@ updated: 2026-07-26
 
 - **[Mojo — Training Deck](mojo-training-slides.html) — start here.** A
   6-session slide deck covering the whole language. Sessions 1–5 are
-  compiler-verified against this exact environment (Mojo 1.0.0b2, pixi,
-  in the devcontainer); Session 6 covers documentation, compile-time
+  compiler-verified against this exact environment (Mojo 1.0.0, pixi,
+  in the devcontainer) — written against 1.0.0b2 originally, with
+  "changed in 1.0.0" callouts added where stable diverged; Session 6 covers
+  documentation, compile-time
   parameters, memory & pointers, metaprogramming, advanced functions,
   modules & packages, and interop with C, MLIR, and the GPU. Open it
   directly in a browser, or publish it as a Claude Artifact.
@@ -52,7 +54,7 @@ advanced/specialized. Matches the training deck's Sessions 1–5.
 | `11_struct_constructors.mojo` | `__init__` overloading, defaults, `@staticmethod` factories, `@fieldwise_init` |
 | `12_no_inheritance.mojo` | No classes, no struct inheritance — composition + traits instead |
 | `13_traits_generics.mojo` | Traits & generics, trait composition |
-| `14_closures.mojo` | No `lambda`; capturing via `capturing` keyword or `@parameter`; closures as compile-time args |
+| `14_closures.mojo` | Capturing via `capturing` keyword or `@parameter`; closures as compile-time args. (1.0.0 added a `lambda` keyword usable as a runtime value — not yet covered here; `capturing`/`@parameter` closures still can't be.) |
 | `15_file_operations.mojo` | File I/O: open/read/write/close, `with`, append mode, existence checks, error handling |
 | `16_simd.mojo` | SIMD |
 | `17_python_interop.mojo` | Calling Python |

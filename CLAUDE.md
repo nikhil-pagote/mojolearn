@@ -3,7 +3,7 @@ title: CLAUDE.md
 description: Guidance for Claude Code when working with code in this repository.
 status: reference
 tags: [claude-code, project-conventions]
-updated: 2026-07-22
+updated: 2026-08-13
 ---
 
 # CLAUDE.md
@@ -41,6 +41,7 @@ mojo/
 ```
 
 - `exercises/*.mojo` are standalone scripts with `def main()`, run via `mojo run exercises/NN_name.mojo`. Numbered loosely after the Tutorial.md chapters.
-- **Stdlib imports are namespaced under `std.` in this build** (Mojo 1.0.0b2): use `from std.math import sqrt`, `from std.python import Python`, `from std.testing import assert_equal`. Bare forms like `from math import ...` (common in online docs/tutorials) fail here with `unable to locate module '<name>'`. Builtins like `print` need no import. Also: `def main()` is non-raising by default — use `def main() raises:` when calling fallible APIs (e.g. `Python.import_module`). Working example: `exercises/17_python_interop.mojo`.
+- **Stdlib imports are namespaced under `std.` in this build** (Mojo 1.0.0, confirmed unchanged from 1.0.0b2): use `from std.math import sqrt`, `from std.python import Python`, `from std.testing import assert_equal`. Bare forms like `from math import ...` (common in online docs/tutorials) fail here with `unable to locate module '<name>'`. Builtins like `print` need no import. Also: `def main()` is non-raising by default — use `def main() raises:` when calling fallible APIs (e.g. `Python.import_module`). Working example: `exercises/17_python_interop.mojo`.
 - `src/mojolearn/` follows the Python-style package convention (`__init__.mojo` marks a directory as a package, imported as `from mojolearn import Thing`). Empty until there's real shared code to put there — don't add modules speculatively.
-- `tests/` — the stdlib **does** ship a `testing` module; the correct import is `from std.testing import assert_equal` (the earlier failure was the bare `from testing import ...` form — see the `std.` namespace note above). There is still **no `mojo test` subcommand** in this CLI (1.0.0b2, confirmed via `mojo --help`), so a test today is a standalone `.mojo` script with `def main() raises:` that calls `assert_*` and is run via `mojo run`. Build out a fuller convention when tests are actually needed.
+- `tests/` — the stdlib **does** ship a `testing` module; the correct import is `from std.testing import assert_equal` (the earlier failure was the bare `from testing import ...` form — see the `std.` namespace note above). There is still **no `mojo test` subcommand** in this CLI (confirmed via `mojo --help` on 1.0.0), so a test today is a standalone `.mojo` script with `def main() raises:` that calls `assert_*` and is run via `mojo run`. Build out a fuller convention when tests are actually needed.
+- **List literals changed in 1.0.0:** a bare `[1, 2, 3]` now infers `Array[Int, N]`, not `List[Int]` — annotate the target (`var xs: List[Int] = [1, 2, 3]`) whenever you actually need a `List`. Bit us in `exercises/14_closures.mojo`.
