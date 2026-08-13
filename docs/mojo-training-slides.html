@@ -1303,14 +1303,14 @@
 
     { type: "topic", session: 6, id: "toc-gpu", kicker: "session 6 · GPU programming", title: "The same language, running on the GPU",
       lede: "Mojo's headline differentiator: the same language used for Session 1's hello-world can also write GPU kernels — functions that run in parallel across thousands of GPU threads, organized into blocks and grids, without switching to CUDA or a separate shading language.",
-      code: "def add_two(result: UnsafePointer[Float32], a: UnsafePointer[Float32], b: UnsafePointer[Float32]):\n" +
+      code: "def add_two(result: Pointer[Float32, MutUntrackedOrigin], a: Pointer[Float32, MutUntrackedOrigin], b: Pointer[Float32, MutUntrackedOrigin]):\n" +
             "    var i = block_idx.x * block_dim.x + thread_idx.x   # this thread's index\n" +
-            "    result[i] = a[i] + b[i]\n\n" +
+            "    result[unsafe_offset=i] = a[unsafe_offset=i] + b[unsafe_offset=i]\n\n" +
             "with DeviceContext() as ctx:\n" +
             "    var compiled = ctx.compile_function[add_two]()\n" +
             "    ctx.enqueue_function(compiled, result_buf, a_buf, b_buf, grid_dim=8, block_dim=8)\n" +
             "    ctx.synchronize()",
-      note: { tone: "changed", label: "changed in 1.0.0", text: "thread_idx/block_idx identify which of the thousands of parallel invocations is currently running — the same kernel body executes once per GPU thread. Also: UnsafePointer above is deprecated in favour of Pointer (same compiler warning as the earlier memory slide). This snippet was never run in this repo (no GPU in the devcontainer), so it's illustrative only — untested either way, before or after 1.0.0." } },
+      note: { tone: "changed", label: "changed in 1.0.0", text: "thread_idx/block_idx identify which of the thousands of parallel invocations is currently running — the same kernel body executes once per GPU thread. Pointer params fixed for 1.0.0: bare UnsafePointer[Float32] no longer compiles at all (it's now a deprecated Pointer alias that can't infer its origin) — Pointer[Float32, MutUntrackedOrigin] plus [unsafe_offset=i] indexing is the verified replacement (checked CPU-side against this build with real buffers from unsafe_alloc, same pattern as the memory slide). The DeviceContext/kernel-launch machinery itself is still untested either way — no GPU in this devcontainer." } },
 
     { type: "closing", title: "Questions?",
       links: [
