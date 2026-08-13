@@ -1232,12 +1232,14 @@
             "var s = \"hello\"\n" +
             "take_borrowed(s)     # s is still valid afterward\n" +
             "take_owned(s^)       # s is no longer valid afterward\n\n" +
-            "var p = UnsafePointer[Int].alloc(1)   # manual heap allocation\n" +
-            "p.init_pointee_copy(10)\n" +
+            "from std.memory.alloc import unsafe_alloc\n\n" +
+            "var p = unsafe_alloc[Int](1)   # manual heap allocation\n" +
+            "p.unsafe_write(10)\n" +
             "print(p[])\n" +
-            "p.destroy_pointee()\n" +
-            "p.free()",
-      note: { tone: "changed", label: "changed in 1.0.0 — needs a fix", text: "This exact snippet no longer compiles: UnsafePointer is deprecated in favour of Pointer (confirmed via compiler warning: \"'UnsafePointer' is deprecated, use 'Pointer' instead\"), but Pointer[Int].alloc(...) doesn't exist — the replacement allocation API wasn't pinned down in this pass, so treat the pointer lines as unverified until someone chases that down. UnsafePointer/Pointer are otherwise exactly what they sound like — no bounds checking, no automatic cleanup. ArcPointer offers reference-counted shared ownership for when a single owner isn't enough." } },
+            "p.unsafe_deinit_pointee()\n" +
+            "p.unsafe_free()",
+      output: "hello\nhello\n10",
+      note: { tone: "changed", label: "changed in 1.0.0", text: "The b2 form (UnsafePointer[Int].alloc(1), .init_pointee_copy(), .destroy_pointee(), .free()) no longer compiles: UnsafePointer collapsed into a deprecated alias for Pointer, which has no .alloc at all — allocation moved to the free function unsafe_alloc (from std.memory.alloc), and the pointee methods gained an unsafe_ prefix. p[] with no offset still works unchanged. Verified clean (no warnings) against this build. UnsafePointer/Pointer are otherwise exactly what they sound like — no bounds checking, no automatic cleanup. ArcPointer offers reference-counted shared ownership for when a single owner isn't enough." } },
 
     { type: "topic", session: 6, id: "toc-metaprogramming", kicker: "session 6 · metaprogramming", title: "Compile-time code that inspects code",
       lede: "Where Session 4's generics check \u201cdoes this type implement this trait,\u201d metaprogramming can branch on that answer at compile time and produce different code paths per type — with zero runtime cost, since the branch never exists in the compiled output.",
